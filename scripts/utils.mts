@@ -1,5 +1,6 @@
 import * as readline from 'readline';
 import * as fs from 'fs/promises';
+import path from 'path';
 
 export function askQuestion(question: string, rl: readline.Interface): Promise<string> {
     return new Promise((resolve) => {
@@ -22,10 +23,34 @@ export async function isValidPath(path: string) {
     }
 }
 
-export async function copyFilesToTargetDir(targetDir: string, man: string, css: string) {
-    // Create the target directory if it doesn't exist
-    await fs.mkdir(targetDir, { recursive: true });
-    // Copy manifest.json and styles.css
-    await fs.copyFile("./manifest.json", man);
-    await fs.copyFile("./styles.css", css);
+export async function copyFilesToTargetDir(targetDir: string, ...files: string[]) {
+    try {
+        // create the target directory if it doesn't exist
+        await fs.mkdir(targetDir, { recursive: true });
+
+        // copy the files
+        for (const file of files) {
+            try {
+                const fileName = path.basename(file);
+                const dest = path.join(targetDir, fileName);
+
+                // check if the file exists
+                try {
+                    await fs.access(file);
+                } catch (error) {
+                    if (file.endsWith('styles.css')) {
+                        continue;
+                    } else {
+                        throw error;
+                    }
+                }
+
+                await fs.copyFile(file, dest);
+            } catch (error) {
+                console.error(`Failed to copy ${file}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to create target directory or copy files:', error);
+    }
 }

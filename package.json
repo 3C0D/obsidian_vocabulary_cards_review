@@ -1,11 +1,11 @@
 {
-	"name": "obsidian-sample-plugin-modif",
+	"name": "vocabulary_cards_try",
 	"version": "1.0.0",
-	"description": "modified sample plugin",
+	"description": "vocab cards try",
 	"main": "main.js",
 	"scripts": {
 		"dev": "tsx scripts/esbuild.config.mts",
-		"start": "tsx scripts/start.mts",
+		"start": "node scripts/start.mjs",
 		"build": "tsc -noEmit -skipLibCheck && tsx scripts/esbuild.config.mts production",
 		"real": "SET REAL=1 && npm run build",
 		

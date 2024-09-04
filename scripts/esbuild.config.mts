@@ -21,7 +21,7 @@ if you want to view the source, please visit the github repository of this plugi
 const prod = process.argv[2] === "production";
 let outdir = "./";
 //@ts-ignore
-const REAL = process.env.REAL.trim() || "-1";;//trim because SET REAL=1 add a space 
+const REAL = process.env.REAL.trim() || "-1";//trim because SET REAL=1 add a space 
 const vaultDir = REAL === "1"? process.env.REAL_VAULT : process.env.TEST_VAULT;
 
 // → REAL_VAULT or TEST_VAULT
@@ -67,7 +67,11 @@ const context = await esbuild.context({
 		"@lezer/highlight",
 		"@lezer/lr",
 		...builtins],
-	plugins: [sassPlugin()],
+	plugins: [
+		sassPlugin({
+			syntax: 'scss',
+			style: 'expanded',
+		}),],
 	format: "cjs",
 	target: "es2018",
 	logLevel: "info",

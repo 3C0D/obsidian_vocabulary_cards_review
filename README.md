@@ -1,6 +1,6 @@
-# Obsidian Sample Plugin Modifications
+# Vocabulary cards
 
-The goal of this "sample" is to automate the development and publication processes on github, including the creation of releases.
+cards
 
 ## Development (Add this to your README)
 
