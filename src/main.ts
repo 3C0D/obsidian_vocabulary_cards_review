@@ -6,16 +6,17 @@ import { i10n } from "./i10n";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
 import { renderError } from "./Renderer";
+import { getExtSource } from './utils';
 
 export default class VocabularyView extends Plugin {
     private currentCard: Card | undefined;
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", (source, el) => {
-            renderTable(source, el)
+            setTimeout(() => renderTable(this, source, el), 100);
         });
 
         this.registerMarkdownCodeBlockProcessor("voca-card", (source, el) => {
-            parseCardCodeBlock(this, source, el)
+            setTimeout(() => parseCardCodeBlock(this, source, el), 100);
         });
     }
 }
@@ -27,7 +28,8 @@ function createEmpty(el: HTMLElement) {
 
 function parseCardCodeBlock(plugin: Plugin, source: string, el: HTMLElement) {
     el.innerHTML = '';
-    renderNextCard(new CardStat(plugin), new CardList(source), el);//empty or random card
+    source = getExtSource(source, plugin);
+    renderNextCard(new CardStat(plugin), new CardList(source, plugin), el);//empty or random card
 }
 
 function renderNextCard(cardStat: CardStat, cardList: CardList, el: HTMLElement, mode: 'next' | 'random' = 'random') {
@@ -56,7 +58,6 @@ function renderSingleCard(card: Card | undefined, cardList: CardList, cardStat: 
     const cardEl = el.createEl('div', { cls: "voca-card" });
 
     const statData: number[] = cardStat.getStat(card);
-    console.log(statData);
 
     const stat = cardEl.createEl('span', { cls: 'voca-card_stat' });
 
@@ -69,9 +70,9 @@ function renderSingleCard(card: Card | undefined, cardList: CardList, cardStat: 
     }
 
 
-        stat.createEl('span', { cls: 'voca-card_stat-wrong', text: wrongCount.toString() });
-        stat.createEl('span', { cls: 'voca-card_stat-delimiter', text: '/' });
-        stat.createEl('span', { cls: 'voca-card_stat-right', text: rightCount.toString() });
+    stat.createEl('span', { cls: 'voca-card_stat-wrong', text: wrongCount.toString() });
+    stat.createEl('span', { cls: 'voca-card_stat-delimiter', text: '/' });
+    stat.createEl('span', { cls: 'voca-card_stat-right', text: rightCount.toString() });
 
     cardEl.createEl('span', { cls: 'voca-card-derivative', text: card.derivative });
 
@@ -108,9 +109,9 @@ function renderSingleCard(card: Card | undefined, cardList: CardList, cardStat: 
     });
 }
 
-function renderTable(source: string, el: HTMLElement) {
+function renderTable(plugin: Plugin, source: string, el: HTMLElement) {
     try {
-        const wordList = new CardList(source);
+        const wordList = new CardList(source, plugin);
         if (wordList.length < 1) return;
 
         const tableEl = el.createEl('table', { cls: "voca-table" });

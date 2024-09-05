@@ -1,11 +1,12 @@
+import { Plugin } from "obsidian";
 import { Card } from "./Card";
 
 export class CardList {
     cards: Card[] = [];
 
-    constructor(src: string) {
+    constructor(src: string , plugin: Plugin) {
         if (src) {
-            this.parseSource(src);
+            this.parseSource(src, plugin );
         }
     }
 
@@ -26,7 +27,7 @@ export class CardList {
         };
     }
 
-    private parseSource(src: string): void {
+    private parseSource(src: string, plugin: Plugin): void {
         const lines = src.split('\n');
         for (const line of lines) {
             const trimmedLine = line.trim();
