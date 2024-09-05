@@ -3,11 +3,9 @@ import process from "process";
 import builtins from "builtin-modules";
 import { config } from 'dotenv';
 import manifest from "../manifest.json" assert { type: "json" };
-import { isValidPath } from "./utils.mts";
 import { copyFilesToTargetDir } from "./utils.mts";
 import { sassPlugin } from 'esbuild-sass-plugin'
-import path from "path";
-import fs from 'fs';
+import glob from 'glob';
 
 
 config();
@@ -19,30 +17,36 @@ if you want to view the source, please visit the github repository of this plugi
 */
 `;
 const prod = process.argv[2] === "production";
-let outdir = "./";
 //@ts-ignore
-const REAL = process.env.REAL.trim() || "-1";//trim because SET REAL=1 add a space 
-const vaultDir = REAL === "1"? process.env.REAL_VAULT : process.env.TEST_VAULT;
+const REAL = process.env.REAL.trim() || "-1";//trim because SET REAL=1 add a space
 
-// → REAL_VAULT or TEST_VAULT
-if ((!prod && REAL !== "-1") || REAL === "1") {
-	outdir = `${vaultDir}/.obsidian/plugins/${manifest.id}`;
-	const man = `${outdir}/manifest.json`;
-	const css = `${outdir}/styles.css`;
-	// Copy manifest.json and styles.css if don't exist and create folder
-	if (!await isValidPath(css) || !await isValidPath(man)){
-		await copyFilesToTargetDir(outdir, man, css);
-	}
+let vaultDir: string;
+
+switch (REAL) {
+	case "1":
+		vaultDir = process.env.REAL_VAULT ?? "./";
+		break;
+	case "0":
+		console.log("case 0")
+		vaultDir = process.env.TEST_VAULT ?? "./";
+		break;
+	default:
+		vaultDir = "./";
 }
-// else → local folder (git cloned folder)
 
-console.info(`\nSaving plugin to ${outdir}\n`);
+const outdir = REAL === "0" ? `${vaultDir}/.obsidian/plugins/${manifest.id}` : "./";
 
 const entryPoints = ['src/main.ts'];
-const scssPath = path.join(process.cwd(), 'src', 'styles.scss');
+const scssFiles = glob.sync('src/**/styles.scss');
+// Add all found SCSS files to entryPoints
+if (scssFiles.length) {
+	entryPoints.push(...scssFiles);
+}
 
-if (fs.existsSync(scssPath)) {
-	entryPoints.push('src/styles.scss');
+const isScss = (!!(scssFiles.length > 0));
+
+if (!prod) {
+	await copyFilesToTargetDir(vaultDir, isScss,  manifest.id, REAL);
 }
 
 const context = await esbuild.context({
@@ -83,6 +87,9 @@ const context = await esbuild.context({
 
 if (prod) {
 	await context.rebuild();
+	if (REAL === "1") {
+		await copyFilesToTargetDir(vaultDir, isScss, manifest.id, REAL);
+	}
 	process.exit(0);
 } else {
 	await context.watch();

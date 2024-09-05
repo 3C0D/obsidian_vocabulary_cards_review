@@ -1,6 +1,5 @@
 import * as readline from 'readline';
 import * as fs from 'fs/promises';
-import path from 'path';
 
 export function askQuestion(question: string, rl: readline.Interface): Promise<string> {
     return new Promise((resolve) => {
@@ -23,34 +22,53 @@ export async function isValidPath(path: string) {
     }
 }
 
-export async function copyFilesToTargetDir(targetDir: string, ...files: string[]) {
-    try {
-        // create the target directory if it doesn't exist
-        await fs.mkdir(targetDir, { recursive: true });
+export async function copyFilesToTargetDir(vaultDir: string, scss: boolean, manifestId: string, real = "0") {
 
-        // copy the files
-        for (const file of files) {
+    if (real === "-1") return
+
+    const outdir = `${vaultDir}/.obsidian/plugins/${manifestId}`;
+
+    const man = `${outdir}/manifest.json`;
+    const css = `${outdir}/styles.css`;
+    const js = `${outdir}/main.js`;
+
+    if (real === "1") {
+        try {
+            await fs.mkdir(outdir);
+        } catch {
+            null
+        }
+        try {
+            await fs.copyFile("./styles.css", css);
+        } catch  {
+            null;
+        }
+        try {
+            await fs.copyFile("./manifest.json", man);
+            await fs.copyFile("./main.js", js);
+        } catch (error) {
+            console.log(error);
+        }
+        console.info(`\nInstalled in real vault ${outdir}\n`);
+    }
+    // real === "0"
+    else {
+        console.log("real === 0")
+        try {
+            await fs.mkdir(outdir);
+        } catch {
+            null;
+        }
+        if (!scss) {
             try {
-                const fileName = path.basename(file);
-                const dest = path.join(targetDir, fileName);
-
-                // check if the file exists
-                try {
-                    await fs.access(file);
-                } catch (error) {
-                    if (file.endsWith('styles.css')) {
-                        continue;
-                    } else {
-                        throw error;
-                    }
-                }
-
-                await fs.copyFile(file, dest);
-            } catch (error) {
-                console.error(`Failed to copy ${file}:`, error);
+                await fs.copyFile("./styles.css", css);
+            } catch {
+                null;
             }
         }
-    } catch (error) {
-        console.error('Failed to create target directory or copy files:', error);
+        await fs.copyFile("./manifest.json", man);
+        console.info(`\nSaving plugin to ${outdir}\n`);
     }
+
 }
+

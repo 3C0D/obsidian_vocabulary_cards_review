@@ -32,12 +32,9 @@ export class CardStat {
             this.stat[card.derivative] = { r: 0, w: 0 };
         }
         this.stat[card.derivative].r++;
-        if (this.stat[card.derivative].w > 0) {
-            this.stat[card.derivative].w--;
-            card.setWrong(this.stat[card.derivative].w);
-        }
+        this.stat[card.derivative].w = 0;
+        card.setWrong(this.stat[card.derivative].w);
         card.setRight(this.stat[card.derivative].r);
-        console.log("this.stat[card.derivative]",this.stat[card.derivative]);
         await this.saveStat();
     }
 
@@ -47,10 +44,8 @@ export class CardStat {
             this.stat[card.derivative] = { r: 0, w: 0 };
         }
         this.stat[card.derivative].w++;
-        if (this.stat[card.derivative].r > 0) {
-            this.stat[card.derivative].r--;
-            card.setRight(this.stat[card.derivative].r);
-        }
+        this.stat[card.derivative].r = 0;
+        card.setRight(this.stat[card.derivative].r);
         card.setWrong(this.stat[card.derivative].w);
         await this.saveStat();
     }

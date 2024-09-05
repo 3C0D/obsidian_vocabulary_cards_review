@@ -1,8 +1,3 @@
-.voca-card-empty {
-    letter-spacing: normal;
-    color: rebeccapurple;
-}
-
 .voca-table,
 .voca {
     font-size: var(--editor-font-size);
@@ -45,6 +40,7 @@
     box-shadow: 0 0.25em 0.625em var(--background-modifier-box-shadow);
     padding: var(--size-4-5) var(--size-4-5);
     border: var(--table-border-width) solid var(--table-border-color);
+    border-radius: var(--size-4-2);
 }
 
 .voca-error {
@@ -79,6 +75,11 @@
         word-wrap: break-word;
         /* Internet Explorer 5.5+ */
     }
+}
+
+.voca-card-empty {
+    letter-spacing: normal;
+    color: rebeccapurple;
 }
 
 .voca-card {
