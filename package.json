@@ -1,6 +1,6 @@
 {
 	"name": "vocabulary_cards_try",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "vocab cards try",
 	"main": "main.js",
 	"scripts": {
@@ -8,10 +8,8 @@
 		"start": "node scripts/start.mjs",
 		"build": "tsc -noEmit -skipLibCheck && tsx scripts/esbuild.config.mts production",
 		"real": "SET REAL=1 && npm run build",
-		
 		"acp": "tsx scripts/acp.mts",
 		"bacp": "tsx scripts/acp.mts -b",
-				
 		"version": "tsx scripts/update-version.mts",
 		"release": "tsx scripts/release.mts"
 	},
