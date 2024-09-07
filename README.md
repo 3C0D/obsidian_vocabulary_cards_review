@@ -3,7 +3,7 @@
 from [cards](https://github.com/meniam/obsidian-vocabulary-cards) 
 Plugin fixé.  under  construc   ... 
 
-![alt text](image.png)
+![alt text](assets/image-1.png)
 
 ### New features:  
 
@@ -13,8 +13,7 @@ Plugin fixé.  under  construc   ...
                or    ```
   ```          |
   ````
-  If the source code block is empty, the code block is populated by the markdown page content(except code blocks). Use `/.../` for **transcription** instead of `<...>`.  
-  Tips: If you need to use / in the transcription, use / / before(with a space between). `word: / / parted/translation`  
+  If the source code block is empty, the code block is populated by the markdown page content(except code blocks). Use `[...]` for **transcription** instead of `<...>`   
   
 - The ↺ button is used to synchronize the code block after editing the markdown page. 
 

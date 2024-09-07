@@ -18,9 +18,6 @@ export async function leafContent(plugin: Plugin, ctx: MarkdownPostProcessorCont
     if (!file) return
     const content = await plugin.app.vault.read(file)
     return content
-    // const editor = getEditor(plugin)
-    // if (!editor) return
-    // return getContent(editor)
 }
 
 

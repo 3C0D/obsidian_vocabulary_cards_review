@@ -10,12 +10,13 @@ export class CardList {
     sourceFromLeaf: string;
 
     constructor(VocabularyView: VocabularyView, src: string, ctx: MarkdownPostProcessorContext,) {
+        this.sourceFromLeaf = VocabularyView.sourceFromLeaf
+        console.log("sourceFromLeaf", this.sourceFromLeaf)
         if (src) {
             this.parseSource(src);
         }
         this.currentCard = undefined;
         this.sourcePath = ctx.sourcePath
-        this.sourceFromLeaf = VocabularyView.sourceFromLeaf
     }
 
     get length(): number {
@@ -75,7 +76,7 @@ export class CardList {
                 let explanation = "";
 
                 if (this.sourceFromLeaf) {
-                    const match = rest.match(/^\/(.+?)\/\s*(.*)$/);
+                    const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
                     if (match) {
                         transcription = match[1].trim();
                         explanation = match[2].trim();
@@ -91,7 +92,7 @@ export class CardList {
                         explanation = rest;
                     }
                 }
-
+                
                 try {
                     const card = new Card(trimmedWord, transcription, explanation);
                     this.push(card);

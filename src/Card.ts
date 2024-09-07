@@ -7,10 +7,6 @@ export class Card {
         public transcription: string,
         public explanation: string
     ) {
-        this.derivative = derivative.trim();
-        this.transcription = transcription.trim();
-        this.explanation = explanation.trim();
-        
         if (!this.isValid()) {
             throw new Error("Invalid card: derivative must be non-empty and at least one of transcription or explanation must be non-empty");
         }

@@ -7,11 +7,13 @@ import { createEmpty, getExtSource, reloadEmptyButton } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCard';
 import { renderTableBody } from './renderTable';
 
-// table section according to titles ? hmm not super useful.
+
 // frequency of apparition of cards TODO!!!
 // add a context menu
 // bug 1 card next ? chiant!!
 // command insert voca-card/voca-table
+// add clean code to scripts...
+// table section according to titles ? later ?... system to have several code blocks by page ?
 
 export default class VocabularyView extends Plugin {
     sourceFromLeaf = ""
