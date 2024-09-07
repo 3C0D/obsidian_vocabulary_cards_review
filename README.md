@@ -1,6 +1,17 @@
 # Vocabulary cards
 
-cards
+[cards](https://github.com/meniam/obsidian-vocabulary-cards)
+Plugin fixé.  plus en cours... 
+Add new feature. Leaving the code block empty. The code block is populated by the page content, except within a code block
+e.g:  
+````
+```voc-card
+
+```
+````
+![alt text](assets/image.png)
+
+The ↺ button is used to synchronize the code block with the page after changes in its content.
 
 ## Development (Add this to your README)
 
