@@ -1,7 +1,6 @@
 export class Card {
     rightCount = 0;
     wrongCount = 0;
-    blurred = 'blurred';
 
     constructor(
         public derivative: string,

@@ -1,20 +1,6 @@
 .voca-table {
     font-size: var(--editor-font-size);
     width: 100%;
-    position: relative;
-
-    &_button-reload {
-        position: absolute;
-        display: block;
-        bottom: 0;
-        right: 0;
-        // top: calc(var (--siz);
-        padding: 0.5em 0.75em;
-        margin: 0.1em 0.5em;
-        border-radius: var(--size-4-2);
-        border: 0;
-        cursor: pointer;
-    }
 
     .markdown-rendered &_derivative,
     &_derivative {
@@ -53,8 +39,6 @@
     border: var(--table-border-width) solid var(--table-border-color);
     border-radius: var(--size-4-2);
 }
-
-
 
 .voca-card {
     position: relative;
@@ -150,7 +134,7 @@
     &_button-reload {
         position: absolute;
         left: var(--size-4-2);
-        top: calc(var(--size-5-4) * 2.5);
+        top: calc(var(--size-5-4) * 2);
         padding: 0.5em 0.75em;
         margin: 0.75em;
         border-radius: var(--size-4-2);

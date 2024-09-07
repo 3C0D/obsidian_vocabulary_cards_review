@@ -19,9 +19,10 @@ export function leafContent(plugin: Plugin) {
 
 
 export function getExtSource(source: string, plugin: Plugin) {
-    if (source.trim()) {
-        console.log("ici")
-        return source}
+    this.sourceFromLeaf = ""
+    // source has some content
+    if (source.trim()) return source
+    // try to get content from leaf under code block    
     const content = leafContent(plugin)
     if (!content) return ""
 
@@ -30,10 +31,11 @@ export function getExtSource(source: string, plugin: Plugin) {
     // chercher les lignes qui ne sont pas dans un code block.
     let cleanedContent = content;
     cleanedContent = cleanedContent.replace(codeBlockRegex, '');
-    cleanedContent = cleanedContent
+    source = cleanedContent
         .split('\n')
         .filter(line => line.includes(':'))
         .map(line => line.trim().replace(/^[*\-+]\s*/, ''))
         .join('\n');
-    return cleanedContent
+    this.sourceFromLeaf = source
+    return source
 }

@@ -1,17 +1,22 @@
-import { Plugin } from "obsidian";
 import { Card } from "./Card";
 
 export class CardList {
     cards: Card[] = [];
+    currentCard: Card | undefined
 
-    constructor(src: string , plugin: Plugin) {
+    constructor(src: string) {
         if (src) {
-            this.parseSource(src, plugin );
+            this.parseSource(src);
         }
+        this.currentCard = undefined;
     }
 
     get length(): number {
         return this.cards.length;
+    }
+
+    push(card: Card): void {
+        this.cards.push(card);
     }
 
     [Symbol.iterator] = () => {
@@ -27,7 +32,12 @@ export class CardList {
         };
     }
 
-    private parseSource(src: string, plugin: Plugin): void {
+    updateSource(src: string): void {
+        this.cards = [];
+        this.parseSource(src);
+    }
+
+    private parseSource(src: string): void {
         const lines = src.split('\n');
         for (const line of lines) {
             const trimmedLine = line.trim();
@@ -54,15 +64,5 @@ export class CardList {
             }
         }
     }
-
-    push(card: Card): void {
-        this.cards.push(card);
-    }
-
-    getRandomWord(): Card {
-        return this.cards[Math.floor(Math.random() * this.length)];
-    }
-    
-
 }
 

@@ -27,6 +27,12 @@ export class CardStat {
         return record ? [record.r, record.w] : [0, 0];
     }
 
+    updateStat(card: Card): void {
+        const stat = this.getStat(card);
+        card.setRight(stat[0]);
+        card.setWrong(stat[1]);
+    }
+
     async rightAnswer(card: Card): Promise<void> {
         if (!this.stat[card.derivative]) {
             this.stat[card.derivative] = { r: 0, w: 0 };

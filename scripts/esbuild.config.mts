@@ -37,8 +37,9 @@ switch (REAL) {
 const outdir = REAL === "0" ? `${vaultDir}/.obsidian/plugins/${manifest.id}` : "./";
 
 const entryPoints = ['src/main.ts'];
-const scssFiles = glob.sync('src/**/styles.scss');
-// Add all found SCSS files to entryPoints
+// const scssFiles = glob.sync('src/styles.scss');
+const scssFiles = glob.sync('src/**/*.scss');
+
 if (scssFiles.length) {
 	entryPoints.push(...scssFiles);
 }
