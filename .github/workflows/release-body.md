@@ -1,1 +1,1 @@
-update button
+added transcription if content from leaf/uncompleted cards are not added/ncode improvement still in progress
