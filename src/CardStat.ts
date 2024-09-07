@@ -1,29 +1,36 @@
-import { Plugin } from "obsidian";
+import { MarkdownPostProcessorContext, Plugin } from "obsidian";
 import { Card } from "./Card";
 
-interface StatRecord {
+export interface StatRecord {
     r: number;
     w: number;
 }
 
+export interface PageStats {
+    [derivative: string]: StatRecord;
+}
+
 export class CardStat {
-    private stat: Record<string, StatRecord> = {};
-    // private readonly file = '.voca_stat.json';
+    public stats: Record<string, PageStats> = {};
+    sourcePath: string;
 
-    constructor(private plugin: Plugin) {
-        this.loadStat();
+    constructor(private plugin: Plugin, ctx: MarkdownPostProcessorContext) {
+        this.loadStats();
+        this.sourcePath = ctx.sourcePath
     }
 
-    async loadStat(): Promise<void> {
-        this.stat = await this.plugin.loadData() || {};
+    async loadStats(): Promise<void> {
+        this.stats = await this.plugin.loadData() || {};
     }
 
-    private async saveStat(): Promise<void> {
-        await this.plugin.saveData(this.stat);
+    async saveStats(): Promise<void> {
+        await this.plugin.saveData(this.stats);
     }
 
     getStat(card: Card): [number, number] {
-        const record = this.stat[card.derivative];
+        const pageStats = this.stats[this.sourcePath];
+        if (!pageStats) return [0, 0];
+        const record = pageStats[card.derivative];
         return record ? [record.r, record.w] : [0, 0];
     }
 
@@ -34,25 +41,30 @@ export class CardStat {
     }
 
     async rightAnswer(card: Card): Promise<void> {
-        if (!this.stat[card.derivative]) {
-            this.stat[card.derivative] = { r: 0, w: 0 };
+        if (!this.stats[this.sourcePath]) {
+            this.stats[this.sourcePath] = {};
         }
-        this.stat[card.derivative].r++;
-        this.stat[card.derivative].w = 0;
-        card.setWrong(this.stat[card.derivative].w);
-        card.setRight(this.stat[card.derivative].r);
-        await this.saveStat();
+        if (!this.stats[this.sourcePath][card.derivative]) {
+            this.stats[this.sourcePath][card.derivative] = { r: 0, w: 0 };
+        }
+        this.stats[this.sourcePath][card.derivative].r++;
+        this.stats[this.sourcePath][card.derivative].w = 0;
+        card.setWrong(this.stats[this.sourcePath][card.derivative].w);
+        card.setRight(this.stats[this.sourcePath][card.derivative].r);
+        await this.saveStats();
     }
 
-
     async wrongAnswer(card: Card): Promise<void> {
-        if (!this.stat[card.derivative]) {
-            this.stat[card.derivative] = { r: 0, w: 0 };
+        if (!this.stats[this.sourcePath]) {
+            this.stats[this.sourcePath] = {};
         }
-        this.stat[card.derivative].w++;
-        this.stat[card.derivative].r = 0;
-        card.setRight(this.stat[card.derivative].r);
-        card.setWrong(this.stat[card.derivative].w);
-        await this.saveStat();
+        if (!this.stats[this.sourcePath][card.derivative]) {
+            this.stats[this.sourcePath][card.derivative] = { r: 0, w: 0 };
+        }
+        this.stats[this.sourcePath][card.derivative].w++;
+        this.stats[this.sourcePath][card.derivative].r = 0;
+        card.setRight(this.stats[this.sourcePath][card.derivative].r);
+        card.setWrong(this.stats[this.sourcePath][card.derivative].w);
+        await this.saveStats();
     }
 }

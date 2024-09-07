@@ -1,14 +1,21 @@
+import { MarkdownPostProcessorContext } from "obsidian";
 import { Card } from "./Card";
+import { CardStat, PageStats } from "./CardStat";
+import type VocabularyView  from './main';
 
 export class CardList {
     cards: Card[] = [];
     currentCard: Card | undefined
+    sourcePath: string;
+    sourceFromLeaf: string;
 
-    constructor(src: string) {
+    constructor(VocabularyView: VocabularyView, src: string, ctx: MarkdownPostProcessorContext,) {
         if (src) {
             this.parseSource(src);
         }
         this.currentCard = undefined;
+        this.sourcePath = ctx.sourcePath
+        this.sourceFromLeaf = VocabularyView.sourceFromLeaf
     }
 
     get length(): number {
@@ -19,6 +26,24 @@ export class CardList {
         this.cards.push(card);
     }
 
+    async cleanupSavedStats(cardStat: CardStat): Promise<void> {
+        const stats = cardStat.stats
+        if (!stats[this.sourcePath]) return;
+
+        const currentDerivatives = new Set(this.cards.map(card => card.derivative));
+        const statsToKeep: PageStats = {};
+
+        for (const [derivative, stat] of Object.entries(stats[this.sourcePath])) {
+            if (currentDerivatives.has(derivative)) {
+                statsToKeep[derivative] = stat;
+            }
+        }
+
+        stats[this.sourcePath] = statsToKeep;
+        await cardStat.saveStats();
+    }
+
+    //usefull if adding a mode next card
     [Symbol.iterator] = () => {
         let index = 0;
         return {
@@ -42,24 +67,36 @@ export class CardList {
         for (const line of lines) {
             const trimmedLine = line.trim();
             if (trimmedLine) {
-                const [word, rest] = trimmedLine.split(':');
+                const [word, ...restParts] = trimmedLine.split(':');
                 const trimmedWord = word.trim();
+                const rest = restParts.join(':').trim();
 
-                if (rest === undefined) {
-                    // Case where there's nothing after the colon
-                    this.push(new Card(trimmedWord, "", ""));
-                } else {
-                    const trimmedRest = rest.trim();
-                    const parts = trimmedRest.split('>');
+                let transcription = "";
+                let explanation = "";
 
-                    if (parts.length > 1) {
-                        const transcription = parts[0].substring(1).trim(); // Remove the opening '<'
-                        const explanation = parts.slice(1).join('>').trim(); // Join the rest in case there are '>' in the explanation. peu probable...
-                        this.push(new Card(trimmedWord, transcription, explanation));
+                if (this.sourceFromLeaf) {
+                    const match = rest.match(/^\/(.+?)\/\s*(.*)$/);
+                    if (match) {
+                        transcription = match[1].trim();
+                        explanation = match[2].trim();
                     } else {
-                        // No transcription, everything is explanation
-                        this.push(new Card(trimmedWord, "", trimmedRest));
+                        explanation = rest;
                     }
+                } else {
+                    const match = rest.match(/^<(.+?)>\s*(.*)$/);
+                    if (match) {
+                        transcription = match[1].trim();
+                        explanation = match[2].trim();
+                    } else {
+                        explanation = rest;
+                    }
+                }
+
+                try {
+                    const card = new Card(trimmedWord, transcription, explanation);
+                    this.push(card);
+                } catch (error) {
+                    console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
                 }
             }
         }

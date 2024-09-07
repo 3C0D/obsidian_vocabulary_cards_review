@@ -1,6 +1,6 @@
-import { Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
 import { Card } from "./Card";
-import { reloadButton } from "./renderCard_utils";
+import { reloadButton } from "./renderCard";
 import { CardList } from './CardList';
 
 export function renderTableRow(tableBody: HTMLElement, word: Card) {
@@ -23,7 +23,7 @@ function renderTranscription(derivative: HTMLElement, transcription: string) {
     transcriptionEl.createEl('span', { cls: 'voca-table_derivative-transcription-delimiter', text: '/' });
 }
 
-export function renderTableBody(plugin: Plugin, cardList: CardList, el: HTMLElement) {
+export function renderTableBody(plugin: Plugin, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     el.innerHTML = '';
     const tableEl = el.createEl('table', { cls: "voca-table" });
     const tableBody = tableEl.createEl('tbody');
@@ -34,6 +34,6 @@ export function renderTableBody(plugin: Plugin, cardList: CardList, el: HTMLElem
     }
 
     if (this.sourceFromLeaf) {
-        reloadButton(tableEl, plugin, cardList, undefined);
+        reloadButton(tableEl, plugin, cardList, undefined, ctx);
     }
 }

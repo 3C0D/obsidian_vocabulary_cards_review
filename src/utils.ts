@@ -1,4 +1,5 @@
-import { Editor, MarkdownView, Plugin } from "obsidian";
+import { Editor, MarkdownPostProcessorContext, MarkdownView, Plugin } from "obsidian";
+import { parseCardCodeBlock } from "./main";
 
 export function getEditor(plugin: Plugin) {
     const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
@@ -11,31 +12,56 @@ export const getContent = (ed: Editor) => {
     return ed.getValue().trim();
 };
 
-export function leafContent(plugin: Plugin) {
-    const editor = getEditor(plugin)
-    if (!editor) return
-    return getContent(editor)
+export async function leafContent(plugin: Plugin, ctx: MarkdownPostProcessorContext) {
+    const relativePath = ctx.sourcePath
+    const file = plugin.app.vault.getFileByPath(relativePath)
+    if (!file) return
+    const content = await plugin.app.vault.read(file)
+    return content
+    // const editor = getEditor(plugin)
+    // if (!editor) return
+    // return getContent(editor)
 }
 
 
-export function getExtSource(source: string, plugin: Plugin) {
+/**
+ * Returns the content of the source code block or the content of the
+ * underlying markdown page if the source code block is empty.
+ *
+ * @returns The content of the markdown page or the source code block (and set this.sourceFromLeaf)
+ */
+export async function getExtSource(source: string, plugin: Plugin, ctx: MarkdownPostProcessorContext) {
     this.sourceFromLeaf = ""
+
     // source has some content
     if (source.trim()) return source
-    // try to get content from leaf under code block    
-    const content = leafContent(plugin)
+    // else get content from the underlying markdown page    
+    let content = await leafContent(plugin,ctx)
     if (!content) return ""
 
-    const codeBlockRegex = /^(?:```|~~~)([a-z0-9-+]*)\n([\s\S]*?)\n(?:```|~~~)$/gim; //case-insensitive
-
-    // chercher les lignes qui ne sont pas dans un code block.
-    let cleanedContent = content;
-    cleanedContent = cleanedContent.replace(codeBlockRegex, '');
-    source = cleanedContent
+    // remove code blocks from the page content
+    const codeBlockRegex = /^(?:```|~~~)([a-z0-9-+]*)\n([\s\S]*?)\n(?:```|~~~)$/gim;
+    content = content.trim();
+    content = content.replace(codeBlockRegex, '');
+    source = content
         .split('\n')
         .filter(line => line.includes(':'))
         .map(line => line.trim().replace(/^[*\-+]\s*/, ''))
         .join('\n');
+
     this.sourceFromLeaf = source
     return source
+}
+
+export function createEmpty(el: HTMLElement) {
+    const cardEl = el.createEl('div', { cls: "voca-card" });
+    cardEl.createEl('div', { cls: 'voca-card-empty', text: 'No cards found.' });
+}
+
+export function reloadEmptyButton(plugin: Plugin, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+    const reloadButton = el.createEl('button', { cls: 'voca-card_empty-reload', text: '↺' });
+    console.log("ctx", ctx)
+    reloadButton.addEventListener("click", () => {
+        parseCardCodeBlock(plugin, this.sourceFromLeaf, el, ctx);
+    });
 }

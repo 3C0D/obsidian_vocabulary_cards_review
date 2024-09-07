@@ -1,17 +1,22 @@
 # Vocabulary cards
 
-[cards](https://github.com/meniam/obsidian-vocabulary-cards)
-Plugin fixé.  plus en cours... 
-Add new feature. Leaving the code block empty. The code block is populated by the page content, except within a code block
-e.g:  
-````
-```voc-card
+from [cards](https://github.com/meniam/obsidian-vocabulary-cards) 
+Plugin fixé.  under  construc   ... 
 
-```
-````
-![alt text](assets/image.png)
+![alt text](image.png)
 
-The ↺ button is used to synchronize the code block with the page after changes in its content.
+### New features:  
+
+- empty codeblock:
+  ````
+  ```voc-card  |     ```voca-card
+               or    ```
+  ```          |
+  ````
+  If the source code block is empty, the code block is populated by the markdown page content(except code blocks). Use `/.../` for **transcription** instead of `<...>`.  
+  Tips: If you need to use / in the transcription, use / / before(with a space between). `word: / / parted/translation`  
+  
+- The ↺ button is used to synchronize the code block after editing the markdown page. 
 
 ## Development (Add this to your README)
 

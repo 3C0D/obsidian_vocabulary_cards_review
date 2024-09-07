@@ -6,8 +6,20 @@ export class Card {
         public derivative: string,
         public transcription: string,
         public explanation: string
-    ) { }
+    ) {
+        this.derivative = derivative.trim();
+        this.transcription = transcription.trim();
+        this.explanation = explanation.trim();
+        
+        if (!this.isValid()) {
+            throw new Error("Invalid card: derivative must be non-empty and at least one of transcription or explanation must be non-empty");
+        }
+    }
 
+    isValid(): boolean {
+        return this.derivative !== '' && (this.transcription !== '' || this.explanation !== '');
+    }
+    
     setRight(cnt: number): void {
         this.rightCount = cnt;
     }

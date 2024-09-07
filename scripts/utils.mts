@@ -47,7 +47,7 @@ export async function copyFilesToTargetDir(vaultDir: string, scss: boolean, mani
             await fs.copyFile("./manifest.json", man);
             await fs.copyFile("./main.js", js);
         } catch (error) {
-            console.log(error);
+            console.log("erreur", error);
         }
         console.info(`\nInstalled in real vault ${outdir}\n`);
     }

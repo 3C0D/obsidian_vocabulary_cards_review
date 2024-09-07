@@ -1,60 +1,9 @@
-.voca-table {
-    font-size: var(--editor-font-size);
-    width: 100%;
-    position: relative;
-
-    &_button-reload {
-        position: absolute;
-        display: block;
-        bottom: 0;
-        right: 0;
-        // top: calc(var (--siz);
-        padding: 0.5em 0.75em;
-        margin: 0.1em 0.5em;
-        border-radius: var(--size-4-2);
-        border: 0;
-        cursor: pointer;
-    }
-
-    .markdown-rendered &_derivative,
-    &_derivative {
-        white-space: nowrap;
-        line-height: 1.2;
-    }
-
-    &_derivative-text {
-        display: inline-block;
-        font-weight: bold;
-    }
-
-    &_derivative-transcription {
-        display: inline-block;
-        margin-left: 0.6rem;
-
-        &-text {
-            font-size: 80%;
-            color: rgb(14, 136, 14);
-        }
-
-        &-delimiter {
-            font-size: 80%;
-            color: rgb(87, 2, 87);
-        }
-    }
-
-    &_explanation {
-        width: 100%;
-    }
-}
-
 @mixin voca-box-styles {
     box-shadow: 0 0.25em 0.625em var(--background-modifier-box-shadow);
     padding: var(--size-4-5) var(--size-4-5);
     border: var(--table-border-width) solid var(--table-border-color);
     border-radius: var(--size-4-2);
 }
-
-
 
 .voca-card {
     position: relative;
@@ -158,6 +107,16 @@
         cursor: pointer;
     }
 
+    &_empty-reload {
+        position: absolute;
+        left: var(--size-4-2);
+        padding: 0.5em 0.75em;
+        margin: 0.75em;
+        border-radius: var(--size-4-2);
+        border: 0;
+        cursor: pointer;
+    }
+
     &_buttons {
         margin-top: var(--size-4-5);
         color: #FFF;
@@ -182,6 +141,55 @@
                 width: 100%; // Faire occuper toute la largeur aux boutons
             }
         }
+    }
+}
+
+.voca-table {
+    font-size: var(--editor-font-size);
+    width: 100%;
+    position: relative;
+
+    &_button-reload {
+        position: absolute;
+        display: block;
+        bottom: 0;
+        right: 0;
+        // top: calc(var (--siz);
+        padding: 0.5em 0.75em;
+        margin: 0.1em 0.5em;
+        border-radius: var(--size-4-2);
+        border: 0;
+        cursor: pointer;
+    }
+
+    .markdown-rendered &_derivative,
+    &_derivative {
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+
+    &_derivative-text {
+        display: inline-block;
+        font-weight: bold;
+    }
+
+    &_derivative-transcription {
+        display: inline-block;
+        margin-left: 0.6rem;
+
+        &-text {
+            font-size: 80%;
+            color: rgb(14, 136, 14);
+        }
+
+        &-delimiter {
+            font-size: 80%;
+            color: rgb(87, 2, 87);
+        }
+    }
+
+    &_explanation {
+        width: 100%;
     }
 }
 
@@ -220,6 +228,8 @@
 }
 
 .voca-card-empty {
+    position: relative;
+    text-align: center;
     letter-spacing: normal;
     color: rebeccapurple;
 }
