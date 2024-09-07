@@ -1,1 +1,1 @@
-added transcription if content from leaf/uncompleted cards are not added/ncode improvement still in progress
+transcription fix for content from leaf. now using [...]
