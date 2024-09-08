@@ -1,1 +1,1 @@
-transcription fix for content from leaf. now using [...]
+card chosen by frequency for better learning
