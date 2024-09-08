@@ -8,7 +8,7 @@ import { createEmpty, getExtSource, reloadEmptyButton } from './utils';
 import { renderTableBody } from './renderTable';
 
 export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: Card, cardList: CardList) {
-    const statData = cardStat.getStat(card);
+    const statData = cardStat.getStats(card);
     const stat = cardEl.createEl('span', { cls: 'voca-card_stat' });
 
     if (cardList.length) {
@@ -71,14 +71,14 @@ export function renderCardButtons(cardEl: HTMLElement, plugin: Plugin, card: Car
     const btns = cardEl.createEl('div', { cls: 'voca-card_buttons' });
 
     const wrong = btns.createEl('button', { cls: 'voca-card_button-danger', text: i10n.repeat[userLang] });
-    wrong.addEventListener("click", () => {
-        cardStat.wrongAnswer(card);
+    wrong.addEventListener("click", async () => {
+        await cardStat.wrongAnswer(card);
         renderCard(plugin, cardStat, cardList, el, ctx);
     });
 
     const success = btns.createEl('button', { cls: 'voca-card_button-success', text: i10n.iKnow[userLang] });
-    success.addEventListener("click", () => {
-        cardStat.rightAnswer(card);
+    success.addEventListener("click", async () => {
+        await cardStat.rightAnswer(card);
         renderCard(plugin, cardStat, cardList, el, ctx);
     });
 }

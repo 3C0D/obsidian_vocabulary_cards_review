@@ -10,8 +10,7 @@ export class CardList {
     sourceFromLeaf: string;
 
     constructor(VocabularyView: VocabularyView, src: string, ctx: MarkdownPostProcessorContext,) {
-        this.sourceFromLeaf = VocabularyView.sourceFromLeaf
-        console.log("sourceFromLeaf", this.sourceFromLeaf)
+        this.sourceFromLeaf = VocabularyView.sourceFromLeaf// before parseSource
         if (src) {
             this.parseSource(src);
         }

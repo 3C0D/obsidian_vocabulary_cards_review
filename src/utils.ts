@@ -1,16 +1,5 @@
-import { Editor, MarkdownPostProcessorContext, MarkdownView, Plugin } from "obsidian";
+import { MarkdownPostProcessorContext, Plugin } from "obsidian";
 import { parseCardCodeBlock } from "./main";
-
-export function getEditor(plugin: Plugin) {
-    const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!activeView) return
-    const editor = activeView.editor
-    return editor
-}
-
-export const getContent = (ed: Editor) => {
-    return ed.getValue().trim();
-};
 
 export async function leafContent(plugin: Plugin, ctx: MarkdownPostProcessorContext) {
     const relativePath = ctx.sourcePath
@@ -19,7 +8,6 @@ export async function leafContent(plugin: Plugin, ctx: MarkdownPostProcessorCont
     const content = await plugin.app.vault.read(file)
     return content
 }
-
 
 /**
  * Returns the content of the source code block or the content of the
@@ -57,8 +45,7 @@ export function createEmpty(el: HTMLElement) {
 
 export function reloadEmptyButton(plugin: Plugin, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const reloadButton = el.createEl('button', { cls: 'voca-card_empty-reload', text: '↺' });
-    console.log("ctx", ctx)
-    reloadButton.addEventListener("click", () => {
-        parseCardCodeBlock(plugin, this.sourceFromLeaf, el, ctx);
+    reloadButton.addEventListener("click", async () => {
+        await parseCardCodeBlock(plugin, this.sourceFromLeaf, el, ctx);
     });
 }

@@ -7,8 +7,6 @@ import { createEmpty, getExtSource, reloadEmptyButton } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCard';
 import { renderTableBody } from './renderTable';
 
-
-// frequency of apparition of cards TODO!!!
 // add a context menu
 // bug 1 card next ? chiant!!
 // command insert voca-card/voca-table
@@ -25,7 +23,7 @@ export default class VocabularyView extends Plugin {
 
         this.registerMarkdownCodeBlockProcessor("voca-card", (source: string, el, ctx) =>
             this.app.workspace.onLayoutReady(async () => {
-                parseCardCodeBlock(this, source, el, ctx)
+                await parseCardCodeBlock(this, source, el, ctx)
             })
         );
     }
@@ -46,25 +44,58 @@ export async function parseCardCodeBlock(plugin: Plugin, source: string, el: HTM
     await renderCard(plugin, cardStat, cardList, el, ctx);
 }
 
-export async function renderCard(plugin: Plugin, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, mode: 'next' | 'random' = 'random') {
+export async function renderCard(
+    plugin: Plugin,
+    cardStat: CardStat,
+    cardList: CardList,
+    el: HTMLElement,
+    ctx: MarkdownPostProcessorContext,
+    mode: 'next' | 'random' = 'random'
+) {
     let card: Card | undefined;
     el.innerHTML = '';
-    // only 1 card next
-    const cards = cardList.cards.filter(c => c !== cardList.currentCard);// N.B: first load no currentCard set
-    if (!cards.length) {
-        return
+    // Filter out cards to exclude the current card
+    const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
+
+    if (!remainingCards.length) {
+        return; // If no remaining cards
     }
 
-    if (mode === 'next') {// not used
+    if (mode === 'next') {
         const iterator = cardList[Symbol.iterator]();
         const result = iterator.next();
-        card = result.value || cards[0]
+        card = result.value || remainingCards[0]; // If no next card, take the first one
     } else {
-        card = cards[Math.floor(Math.random() * cards.length)];
+        // Use weighted random selection based on stats
+        card = getRandomCardWithWeight(remainingCards, cardStat);
     }
 
     cardList.currentCard = card;
     await renderSingleCard(plugin, card, cardList, cardStat, el, ctx);
+}
+
+export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
+    const weightedCards = cards.map(card => {
+        const [right, wrong] = cardStat.getStats(card);
+        // Calculer le poids selon la logique fournie
+        return { card, weight: (wrong + 1) / (right + 1) };
+    });
+
+    const totalWeight = weightedCards.reduce((sum, wc) => sum + wc.weight, 0);
+    const randomValue = Math.random() * totalWeight;
+
+    let cumulativeWeight = 0;
+
+    // Trouver la carte correspondant au poids aléatoire
+    for (const wc of weightedCards) {
+        cumulativeWeight += wc.weight;
+        if (randomValue < cumulativeWeight) {
+            return wc.card;
+        }
+    }
+
+    // Fallback si aucune carte n'est trouvée (ne devrait pas arriver en théorie)
+    return cards[Math.floor(Math.random() * cards.length)];
 }
 
 async function renderSingleCard(plugin: Plugin, card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext) {

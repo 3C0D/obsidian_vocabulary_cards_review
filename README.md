@@ -7,6 +7,8 @@ Plugin fixé.  under  construc   ...
 
 ### New features:  
 
+- Cards appear with a weighted frequency, favoring those with more errors for targeted learning.
+
 - empty codeblock:
   ````
   ```voc-card  |     ```voca-card
