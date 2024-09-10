@@ -4,16 +4,18 @@ import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
 import { createEmpty, getRandomCardWithWeight, getSource, reloadEmptyButton } from './utils';
-import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCard';
+import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCardUtils';
 import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
 
 // add a context menu
 // command insert voca-card/voca-table at cursor position (avoid first line )
+// update 0 entry → error
 
 export default class VocabularyView extends Plugin {
     sourceFromLeaf = ""
     stats: Record<string, PageStats>
+    viewedIds: string[] = []
 
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", (source, el, ctx) => {
@@ -25,12 +27,23 @@ export default class VocabularyView extends Plugin {
                 await this.parseCardCodeBlock(source, el, ctx)
             })
         );
+        await this.deleteUnusedKeys();
+        // await this.saveStats()
+
+    }
+
+    async loadStats(): Promise<void> {
+        this.stats = await this.loadData() || {};
+    }
+
+    async saveStats(): Promise<void> {
+        await this.saveData(this.stats);
     }
 
     async parseCardCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+        await this.loadStats();
         // source is the text in the code block or the markdown page
-        source = await getSource(source, this, ctx);
-        console.log("this.sourceFromLeaf////////", this.sourceFromLeaf)
+        source = await getSource(this, source, el, ctx);
 
         if (!source) { // repeated code. do a function
             el.innerHTML = '';
@@ -43,18 +56,30 @@ export default class VocabularyView extends Plugin {
         const cardList = new CardList(this, source, ctx);
         // manage stats & getId
         const cardStat = new CardStat(this, this.app, el, ctx, cardList);
-        // load stats & resolveId
         await cardStat.initialize();
-        const sourceFromLeaf = this.sourceFromLeaf// because of the await value is not synchronous
-        await this.renderCard(cardStat, cardList, el, ctx, sourceFromLeaf);
+        await this.renderCard(cardStat, cardList, el, ctx);
     }
+
+    async deleteUnusedKeys(): Promise<void> {
+        return new Promise(() => {
+            setTimeout(async () => {
+                for (const key in this.stats) {
+                    if (!this.viewedIds.includes(key)) {
+                        if (this.stats.hasOwnProperty(key))
+                            delete this.stats[key];
+                    }
+                }
+                await this.saveStats();
+            }, 3000);
+        });
+    }
+
 
     async renderCard(
         cardStat: CardStat,
         cardList: CardList,
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext,
-        sourceFromLeaf: string,
         mode: 'next' | 'random' = 'random'
     ) {
         let card: Card | undefined;
@@ -72,10 +97,10 @@ export default class VocabularyView extends Plugin {
         }
 
         cardList.currentCard = card;
-        await this.renderSingleCard(card, cardList, cardStat, el, ctx, sourceFromLeaf);
+        await this.renderSingleCard(card, cardList, cardStat, el, ctx);
     }
 
-    async renderSingleCard(card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, sourceFromLeaf: string) {
+    async renderSingleCard(card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         el.innerHTML = '';
 
         if (!card) {
@@ -83,31 +108,30 @@ export default class VocabularyView extends Plugin {
             return
         }
 
+        
         const cardEl = el.createEl('div', { cls: "voca-card" });
-
-        renderCardStats(cardEl, cardStat, card, cardList, sourceFromLeaf);
+        
         await cardStat.cleanupSavedStats();
-
-        console.log("sourceFromLeaf", sourceFromLeaf)
-        if (sourceFromLeaf) {
-            reloadButton(this, cardEl, cardList, cardStat, ctx, sourceFromLeaf);
+        renderCardStats(this, cardEl, cardStat, card, cardList);
+        
+        if (this.sourceFromLeaf) {
+            reloadButton(this, cardEl, cardList, cardStat, ctx);
         }
 
         renderCardContent(cardEl, card);
 
-        renderCardButtons(cardEl, this, card, cardStat, cardList, el, ctx, sourceFromLeaf);
+        renderCardButtons(cardEl, this, card, cardStat, cardList, el, ctx);
     }
 
     async renderTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-        source = await getSource(source, this, ctx);
+        source = await getSource(this, source, el, ctx);
         if (!source) {
             el.innerHTML = '';
             createEmpty(el);
             reloadEmptyButton(this, el, ctx);
         }
         const cardList = new CardList(this, source, ctx);
-        const sourceFromLeaf = this.sourceFromLeaf
-        renderTableBody(this, cardList, el, ctx, sourceFromLeaf);
+        renderTableBody(this, cardList, el, ctx);
     }
 }
 

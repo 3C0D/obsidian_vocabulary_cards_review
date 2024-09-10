@@ -11,34 +11,23 @@ export class CardStat {
     constructor(public plugin: VocabularyView, public app: App, public el: HTMLElement, public ctx: MarkdownPostProcessorContext, public cardList: CardList) { }
 
     async initialize(): Promise<void> {
-        await this.loadStats();
+        // await this.plugin.loadStats();
         this.id = await this.resolveId();
-    }
-
-    async loadStats(): Promise<void> {
-        this.plugin.stats = await this.plugin.loadData() || {};
-    }
-
-    async saveStats(): Promise<void> {
-        await this.plugin.saveData(this.plugin.stats);
+        this.plugin.viewedIds.push(this.id);
     }
 
     async resolveId(): Promise<string> {
-        // get section info
+        // get section info lineStart, lineEnd, text (page content)
         const sectionInfo = this.ctx.getSectionInfo(this.el);
-        console.log("sectionInfo", sectionInfo)
 
         if (!sectionInfo) {
             return "";
         }
         // get header
         const lines = sectionInfo.text.split('\n');
-        console.log("lines", lines)
         const codeBlockHeader = lines[sectionInfo.lineStart] ?? '';
-        console.log("codeBlockHeader", codeBlockHeader)
         // get attribute
         const match = /^`{3,}\S+\s+(.*)$/.exec(codeBlockHeader);
-        console.log("match", match)
         let id: string;
         if (!match) {
             id = createIdfromDate();
@@ -66,7 +55,6 @@ export class CardStat {
     async cleanupSavedStats(): Promise<void> {
         const stats = this.plugin.stats
         if (!stats[this.id]) {
-            console.log("ici à voir si simple return")
             return
         }
 
@@ -79,7 +67,9 @@ export class CardStat {
             }
         }
         stats[this.id] = statsToKeep;
-        await this.saveStats();
+        const source = this.plugin.sourceFromLeaf
+        await this.plugin.saveStats();// reintialize this.plugin.sourceFromLeaf !
+        this.plugin.sourceFromLeaf = source
     }
 
     async rightAnswer(card: Card): Promise<void> {
@@ -97,7 +87,7 @@ export class CardStat {
         card.setWrong(answer.w);
 
         this.plugin.stats[this.id][card.derivative] = answer;
-        await this.saveStats();
+        await this.plugin.saveStats();
     }
 
     async wrongAnswer(card: Card): Promise<void> {
@@ -115,6 +105,6 @@ export class CardStat {
         card.setWrong(answer.w);
 
         this.plugin.stats[this.ctx.sourcePath][card.derivative] = answer;
-        await this.saveStats();
+        await this.plugin.saveStats();
     }
 }

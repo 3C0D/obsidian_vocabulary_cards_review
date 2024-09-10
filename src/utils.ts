@@ -17,25 +17,34 @@ export async function leafContent(plugin: VocabularyView, ctx: MarkdownPostProce
  *
  * @returns The content of the markdown page or the source code block (and set this.sourceFromLeaf)
  */
-export async function getSource(source: string, plugin: VocabularyView, ctx: MarkdownPostProcessorContext) {
+export async function getSource(plugin: VocabularyView, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     plugin.sourceFromLeaf = ""
     // source has some content
     if (source.trim()) {
         return source}
-    // else get content from the underlying markdown page    
-    let content = await leafContent(plugin, ctx)
-    if (!content) return ""
 
-    // remove code blocks from the page content
-    // `{3,}\S+\s+(.*)
-    const codeBlockRegex = /^(?:```|~~~)(.*)\n([\s\S]*?)\n(?:```|~~~)$/gim;
-    content = content.trim();
-    content = content.replace(codeBlockRegex, '');
-    source = content
-        .split('\n')
-        .filter(line => line.includes(':'))
-        .map(line => line.trim().replace(/^[*\-+]\s*/, ''))
-        .join('\n');
+    const sectionInfo = ctx.getSectionInfo(el);
+    if (!sectionInfo) {
+        return "";
+    }
+
+    const lines = sectionInfo.text.split('\n');
+    const codeBlockEndLine = sectionInfo.lineEnd;
+
+    // Get the lines after the current code block
+    let contentAfter = lines.slice(codeBlockEndLine + 1);
+
+    // Find the next code block that starts with 'voca-card' or 'voca-table'
+    const nextCodeBlockIndex = contentAfter.findIndex(line =>
+        line.trim().startsWith("```voca-card") ||
+        line.trim().startsWith("```voca-table")
+    );
+
+    // If another relevant code block is found, keep only the content until that block
+    if (nextCodeBlockIndex !== -1) {
+        contentAfter = contentAfter.slice(0, nextCodeBlockIndex);
+    }
+    source = contentAfter.join('\n').trim();
 
     plugin.sourceFromLeaf = source
     return source
@@ -47,7 +56,6 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
         // Calculate the weight according to the provided logic
         return { card, weight: (wrong + 1) / (right + 1) };
     });
-    // console.log("weightedCards", weightedCards)
 
     const totalWeight = weightedCards.reduce((sum, wc) => sum + wc.weight, 0);
     const randomValue = Math.random() * totalWeight;
@@ -74,7 +82,7 @@ export function createEmpty(el: HTMLElement) {
 export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const reloadButton = el.createEl('button', { cls: 'voca-card_empty-reload', text: '↺' });
     reloadButton.addEventListener("click", async () => {
-        await plugin.parseCardCodeBlock(this.sourceFromLeaf, el, ctx);
+        await plugin.parseCardCodeBlock(plugin.sourceFromLeaf, el, ctx);
     });
 }
 
@@ -89,4 +97,5 @@ export function getFileFromCtx(ctx: MarkdownPostProcessorContext, plugin: Vocabu
 export function createIdfromDate() {
     return Date.now().toString()
 }
+
 

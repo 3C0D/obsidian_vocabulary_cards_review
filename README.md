@@ -21,6 +21,8 @@ Plugin fixé.  under  construc   ...
   
 - The ↺ button is used to synchronize the code block after editing the markdown page. 
 
+- caution : if you do a copy past of an existing code block,  delete the id in the new one. Else you are saving stats as one code block.
+
 ## Development (Add this to your README)
 
 ### Optional (SASS):
