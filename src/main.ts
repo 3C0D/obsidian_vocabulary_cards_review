@@ -3,136 +3,111 @@ import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
-import { createEmpty, getExtSource, reloadEmptyButton } from './utils';
+import { createEmpty, getRandomCardWithWeight, getSource, reloadEmptyButton } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCard';
 import { renderTableBody } from './renderTable';
+import { PageStats } from './global';
 
 // add a context menu
-// bug 1 card next ? chiant!!
-// command insert voca-card/voca-table
-// add clean code to scripts...
-// table section according to titles ? later ?... system to have several code blocks by page ?
+// command insert voca-card/voca-table at cursor position (avoid first line )
 
 export default class VocabularyView extends Plugin {
     sourceFromLeaf = ""
+    stats: Record<string, PageStats>
 
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", (source, el, ctx) => {
-            this.app.workspace.onLayoutReady(async () => { await renderTable(this, source, el, ctx) })
+            this.app.workspace.onLayoutReady(async () => { await this.renderTable(source, el, ctx) })
         });
 
         this.registerMarkdownCodeBlockProcessor("voca-card", (source: string, el, ctx) =>
             this.app.workspace.onLayoutReady(async () => {
-                await parseCardCodeBlock(this, source, el, ctx)
+                await this.parseCardCodeBlock(source, el, ctx)
             })
         );
     }
-}
 
-export async function parseCardCodeBlock(plugin: Plugin, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-    source = await getExtSource(source, plugin, ctx);
+    async parseCardCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+        // source is the text in the code block or the markdown page
+        source = await getSource(source, this, ctx);
+        console.log("this.sourceFromLeaf////////", this.sourceFromLeaf)
 
-    if (!source) {
-        el.innerHTML = '';
-        createEmpty(el);
-        reloadEmptyButton(plugin, el, ctx);
-        return;
-    }
-
-    const cardList = new CardList(this, source, ctx);
-    const cardStat = new CardStat(plugin, ctx);
-    await renderCard(plugin, cardStat, cardList, el, ctx);
-}
-
-export async function renderCard(
-    plugin: Plugin,
-    cardStat: CardStat,
-    cardList: CardList,
-    el: HTMLElement,
-    ctx: MarkdownPostProcessorContext,
-    mode: 'next' | 'random' = 'random'
-) {
-    let card: Card | undefined;
-    el.innerHTML = '';
-    // Filter out cards to exclude the current card
-    const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
-
-    if (!remainingCards.length) {
-        return; // If no remaining cards
-    }
-
-    if (mode === 'next') {
-        const iterator = cardList[Symbol.iterator]();
-        const result = iterator.next();
-        card = result.value || remainingCards[0]; // If no next card, take the first one
-    } else {
-        // Use weighted random selection based on stats
-        card = getRandomCardWithWeight(remainingCards, cardStat);
-    }
-
-    cardList.currentCard = card;
-    await renderSingleCard(plugin, card, cardList, cardStat, el, ctx);
-}
-
-export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
-    const weightedCards = cards.map(card => {
-        const [right, wrong] = cardStat.getStats(card);
-        // Calculer le poids selon la logique fournie
-        return { card, weight: (wrong + 1) / (right + 1) };
-    });
-
-    const totalWeight = weightedCards.reduce((sum, wc) => sum + wc.weight, 0);
-    const randomValue = Math.random() * totalWeight;
-
-    let cumulativeWeight = 0;
-
-    // Trouver la carte correspondant au poids aléatoire
-    for (const wc of weightedCards) {
-        cumulativeWeight += wc.weight;
-        if (randomValue < cumulativeWeight) {
-            return wc.card;
+        if (!source) { // repeated code. do a function
+            el.innerHTML = '';
+            createEmpty(el);
+            reloadEmptyButton(this, el, ctx);
+            return;
         }
+
+        //parse source & create cards
+        const cardList = new CardList(this, source, ctx);
+        // manage stats & getId
+        const cardStat = new CardStat(this, this.app, el, ctx, cardList);
+        // load stats & resolveId
+        await cardStat.initialize();
+        const sourceFromLeaf = this.sourceFromLeaf// because of the await value is not synchronous
+        await this.renderCard(cardStat, cardList, el, ctx, sourceFromLeaf);
     }
 
-    // Fallback si aucune carte n'est trouvée (ne devrait pas arriver en théorie)
-    return cards[Math.floor(Math.random() * cards.length)];
-}
-
-async function renderSingleCard(plugin: Plugin, card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-    el.innerHTML = '';
-
-    if (!card) {
-        createEmpty(el);
-        return
-    }
-
-    const cardEl = el.createEl('div', { cls: "voca-card" });
-
-    renderCardStats(cardEl, cardStat, card, cardList);
-    await cardList.cleanupSavedStats(cardStat);
-
-    if (this.sourceFromLeaf) {
-        reloadButton(cardEl, plugin, cardList, cardStat, ctx);
-    }
-
-    renderCardContent(cardEl, card);
-
-    renderCardButtons(cardEl, plugin, card, cardStat, cardList, el, ctx);
-}
-
-async function renderTable(plugin: Plugin, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-    source = await getExtSource(source, plugin, ctx);
-    if (!source) {
+    async renderCard(
+        cardStat: CardStat,
+        cardList: CardList,
+        el: HTMLElement,
+        ctx: MarkdownPostProcessorContext,
+        sourceFromLeaf: string,
+        mode: 'next' | 'random' = 'random'
+    ) {
+        let card: Card | undefined;
         el.innerHTML = '';
-        createEmpty(el);
-        if (this.sourceFromLeaf) {
-            reloadEmptyButton(plugin, el, this.ctx);
+        // exclude current card
+        const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
+
+        if (mode === 'next') { //to see later. add a button or context menu
+            const iterator = cardList[Symbol.iterator]();
+            const result = iterator.next();
+            card = result.value || remainingCards[0];
+        } else {
+            // weighted random selection based on stats
+            card = getRandomCardWithWeight(remainingCards, cardStat);
         }
-        return;
+
+        cardList.currentCard = card;
+        await this.renderSingleCard(card, cardList, cardStat, el, ctx, sourceFromLeaf);
     }
-    const cardList = new CardList(this, source, ctx);
 
-    renderTableBody(plugin, cardList, el, ctx);
+    async renderSingleCard(card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, sourceFromLeaf: string) {
+        el.innerHTML = '';
+
+        if (!card) {
+            createEmpty(el);
+            return
+        }
+
+        const cardEl = el.createEl('div', { cls: "voca-card" });
+
+        renderCardStats(cardEl, cardStat, card, cardList, sourceFromLeaf);
+        await cardStat.cleanupSavedStats();
+
+        console.log("sourceFromLeaf", sourceFromLeaf)
+        if (sourceFromLeaf) {
+            reloadButton(this, cardEl, cardList, cardStat, ctx, sourceFromLeaf);
+        }
+
+        renderCardContent(cardEl, card);
+
+        renderCardButtons(cardEl, this, card, cardStat, cardList, el, ctx, sourceFromLeaf);
+    }
+
+    async renderTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+        source = await getSource(source, this, ctx);
+        if (!source) {
+            el.innerHTML = '';
+            createEmpty(el);
+            reloadEmptyButton(this, el, ctx);
+        }
+        const cardList = new CardList(this, source, ctx);
+        const sourceFromLeaf = this.sourceFromLeaf
+        renderTableBody(this, cardList, el, ctx, sourceFromLeaf);
+    }
 }
-
 

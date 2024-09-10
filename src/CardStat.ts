@@ -1,72 +1,120 @@
-import { MarkdownPostProcessorContext, Plugin } from "obsidian";
+import { App, MarkdownPostProcessorContext } from "obsidian";
 import { Card } from "./Card";
-
-export interface StatRecord {
-    r: number;
-    w: number;
-}
-
-export interface PageStats {
-    [derivative: string]: StatRecord;
-}
+import VocabularyView from "./main";
+import { PageStats } from "./global";
+import { CardList } from "./CardList";
+import { createIdfromDate } from "./utils";
 
 export class CardStat {
-    public stats: Record<string, PageStats> = {};
-    sourcePath: string;
+    id = "";
 
-    constructor(private plugin: Plugin, ctx: MarkdownPostProcessorContext) {
-        this.loadStats();
-        this.sourcePath = ctx.sourcePath
+    constructor(public plugin: VocabularyView, public app: App, public el: HTMLElement, public ctx: MarkdownPostProcessorContext, public cardList: CardList) { }
+
+    async initialize(): Promise<void> {
+        await this.loadStats();
+        this.id = await this.resolveId();
     }
 
     async loadStats(): Promise<void> {
-        this.stats = await this.plugin.loadData() || {};
+        this.plugin.stats = await this.plugin.loadData() || {};
     }
 
     async saveStats(): Promise<void> {
-        await this.plugin.saveData(this.stats);
+        await this.plugin.saveData(this.plugin.stats);
+    }
+
+    async resolveId(): Promise<string> {
+        // get section info
+        const sectionInfo = this.ctx.getSectionInfo(this.el);
+        console.log("sectionInfo", sectionInfo)
+
+        if (!sectionInfo) {
+            return "";
+        }
+        // get header
+        const lines = sectionInfo.text.split('\n');
+        console.log("lines", lines)
+        const codeBlockHeader = lines[sectionInfo.lineStart] ?? '';
+        console.log("codeBlockHeader", codeBlockHeader)
+        // get attribute
+        const match = /^`{3,}\S+\s+(.*)$/.exec(codeBlockHeader);
+        console.log("match", match)
+        let id: string;
+        if (!match) {
+            id = createIdfromDate();
+            const file = this.app.vault.getFileByPath(this.ctx.sourcePath);
+            if (!file) return ""
+            await this.app.vault.process(file, (content) => {
+                const newLines = lines.slice();// copy
+                newLines[sectionInfo.lineStart] = newLines[sectionInfo.lineStart].trim() + ` id:${id}`;
+                const newText = newLines.join('\n');
+                return content.replace(sectionInfo.text, newText);
+            });
+        } else {
+            id = match[1].trim();
+        }
+        return id
     }
 
     getStats(card: Card): [number, number] {
-        const pageStats = this.stats[this.sourcePath];
+        const pageStats = this.plugin.stats[this.id];
         if (!pageStats) return [0, 0];
-        const record = pageStats[card.derivative];
-        return record ? [record.r, record.w] : [0, 0];
+        const answer = pageStats[card.derivative];
+        return answer ? [answer.r, answer.w] : [0, 0];
+    }
+
+    async cleanupSavedStats(): Promise<void> {
+        const stats = this.plugin.stats
+        if (!stats[this.id]) {
+            console.log("ici à voir si simple return")
+            return
+        }
+
+        const currentDerivatives = new Set(this.cardList.cards.map(card => card.derivative));
+        const statsToKeep: PageStats = {};
+
+        for (const [derivative, stat] of Object.entries(stats[this.id])) {
+            if (currentDerivatives.has(derivative)) {
+                statsToKeep[derivative] = stat;
+            }
+        }
+        stats[this.id] = statsToKeep;
+        await this.saveStats();
     }
 
     async rightAnswer(card: Card): Promise<void> {
-        if (!this.stats[this.sourcePath]) {
-            this.stats[this.sourcePath] = {};
+        if (!this.plugin.stats[this.id]) {
+            this.plugin.stats[this.id] = {};
         }
-        const record = this.stats[this.sourcePath][card.derivative] || { r: 0, w: 0 };
+        const answer = this.plugin.stats[this.id][card.derivative] || { r: 0, w: 0 };
 
-        if (record.r < 5) {
-            record.r++;
+        if (answer.r < 5) {
+            answer.r++;
         }
 
-        record.w = 0;
-        card.setRight(record.r);
-        card.setWrong(record.w);
+        answer.w = 0;
+        card.setRight(answer.r);
+        card.setWrong(answer.w);
 
-        this.stats[this.sourcePath][card.derivative] = record;
+        this.plugin.stats[this.id][card.derivative] = answer;
         await this.saveStats();
     }
 
     async wrongAnswer(card: Card): Promise<void> {
-        if (!this.stats[this.sourcePath]) {
-            this.stats[this.sourcePath] = {};
+        if (!this.plugin.stats[this.ctx.sourcePath]) {
+            this.plugin.stats[this.ctx.sourcePath] = {};
         }
-        const record = this.stats[this.sourcePath][card.derivative] || { r: 0, w: 0 };
+        const answer = this.plugin.stats[this.ctx.sourcePath][card.derivative] || { r: 0, w: 0 };
 
-        if (record.w < 5) {
-            record.w++;
+        if (answer.w < 5) {
+            answer.w++;
         }
 
-        record.r = 0;
-        card.setRight(record.r);
-        card.setWrong(record.w);
+        answer.r = 0;
+        card.setRight(answer.r);
+        card.setWrong(answer.w);
 
-        this.stats[this.sourcePath][card.derivative] = record;
+        this.plugin.stats[this.ctx.sourcePath][card.derivative] = answer;
         await this.saveStats();
     }
 }

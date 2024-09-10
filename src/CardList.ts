@@ -1,20 +1,16 @@
 import { MarkdownPostProcessorContext } from "obsidian";
 import { Card } from "./Card";
-import { CardStat, PageStats } from "./CardStat";
-import type VocabularyView  from './main';
+import type VocabularyView from './main';
 
 export class CardList {
     cards: Card[] = [];
-    currentCard: Card | undefined
+    currentCard: Card | undefined = undefined;
     sourcePath: string;
-    sourceFromLeaf: string;
 
-    constructor(VocabularyView: VocabularyView, src: string, ctx: MarkdownPostProcessorContext,) {
-        this.sourceFromLeaf = VocabularyView.sourceFromLeaf// before parseSource
+    constructor(public plugin: VocabularyView, public src: string, ctx: MarkdownPostProcessorContext) {
         if (src) {
             this.parseSource(src);
         }
-        this.currentCard = undefined;
         this.sourcePath = ctx.sourcePath
     }
 
@@ -24,23 +20,6 @@ export class CardList {
 
     push(card: Card): void {
         this.cards.push(card);
-    }
-
-    async cleanupSavedStats(cardStat: CardStat): Promise<void> {
-        const stats = cardStat.stats
-        if (!stats[this.sourcePath]) return;
-
-        const currentDerivatives = new Set(this.cards.map(card => card.derivative));
-        const statsToKeep: PageStats = {};
-
-        for (const [derivative, stat] of Object.entries(stats[this.sourcePath])) {
-            if (currentDerivatives.has(derivative)) {
-                statsToKeep[derivative] = stat;
-            }
-        }
-
-        stats[this.sourcePath] = statsToKeep;
-        await cardStat.saveStats();
     }
 
     //usefull if adding a mode next card
@@ -62,7 +41,7 @@ export class CardList {
         this.parseSource(src);
     }
 
-    private parseSource(src: string): void {
+    parseSource(src: string): void {
         const lines = src.split('\n');
         for (const line of lines) {
             const trimmedLine = line.trim();
@@ -74,7 +53,7 @@ export class CardList {
                 let transcription = "";
                 let explanation = "";
 
-                if (this.sourceFromLeaf) {
+                if (this.plugin.sourceFromLeaf) {
                     const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
                     if (match) {
                         transcription = match[1].trim();
@@ -91,7 +70,7 @@ export class CardList {
                         explanation = rest;
                     }
                 }
-                
+
                 try {
                     const card = new Card(trimmedWord, transcription, explanation);
                     this.push(card);

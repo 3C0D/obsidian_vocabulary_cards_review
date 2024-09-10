@@ -1,7 +1,8 @@
-import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext } from 'obsidian';
 import { Card } from "./Card";
 import { reloadButton } from "./renderCard";
 import { CardList } from './CardList';
+import VocabularyView from './main';
 
 export function renderTableRow(tableBody: HTMLElement, word: Card) {
     const trEl = tableBody.createEl('tr');
@@ -23,7 +24,7 @@ function renderTranscription(derivative: HTMLElement, transcription: string) {
     transcriptionEl.createEl('span', { cls: 'voca-table_derivative-transcription-delimiter', text: '/' });
 }
 
-export function renderTableBody(plugin: Plugin, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+export function renderTableBody(plugin: VocabularyView, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, sourceFromLeaf: string) {
     el.innerHTML = '';
     const tableEl = el.createEl('table', { cls: "voca-table" });
     const tableBody = tableEl.createEl('tbody');
@@ -33,7 +34,7 @@ export function renderTableBody(plugin: Plugin, cardList: CardList, el: HTMLElem
         renderTableRow(tableBody, card);
     }
 
-    if (this.sourceFromLeaf) {
-        reloadButton(tableEl, plugin, cardList, undefined, ctx);
+    if (plugin.sourceFromLeaf) {
+        reloadButton(plugin,tableEl, cardList, undefined, ctx, sourceFromLeaf );
     }
 }
