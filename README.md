@@ -10,19 +10,20 @@ codeblock language voca-card or voca-table
 
 ### New features:  
 
-#### Targeted Learning
+#### **Targeted Learning**
   
 Cards appear favouring those with more errors for targeted learning.
 
-#### Empty codeblock:
+#### **Empty codeblock**
 
-If the source code block is empty, the code block is populated by the markdown page content below. If you put several code blocks the source will be the page content between each block. 
-  
-Use `[...]` for **transcription**. in voca-table you can now use `<...>` or `[...]` 
+If the source code block is empty, the code block is populated by the markdown page content below. If you put several code blocks the source will be the page content between each block.   
+Use `[...]` for **transcription**.
+
+In voca-table you can now use `<...>` or `[...]` 
         
 The ↺ button is used to synchronize the code block after editing the markdown page. 
   
-#### Each codeblock have an id
+#### **Each codeblock have an id**
 
 this id is automatically created to allow saving stats on each code block.  
      
