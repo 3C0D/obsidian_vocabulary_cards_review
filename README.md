@@ -18,7 +18,7 @@ Cards appear favouring those with more errors for targeted learning.
 
 If the source code block is empty, the code block is populated by the markdown page content below. If you put several vocabulary code blocks the source will be the page content between each block. below. 
   
-Use `[...]` for **transcription** instead of `<...>` 
+Use `[...]` for **transcription**. in voca-table you can now use `<...>` or `[...]` 
         
 The ↺ button is used to synchronize the code block after editing the markdown page. 
   
