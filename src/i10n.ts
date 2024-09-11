@@ -4,7 +4,7 @@ interface i10n {
 
 export const userLang = navigator.language || 'en';
 
-export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n } = {
+export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n } = {
     iKnow: {
         "en": "I know",
         "ru": "Знаю",
@@ -41,6 +41,18 @@ export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, c
         "fr": "Synchroniser avec le contenu de page",
         "ru": "Синхронизировать с содержимым листа",
         "es": "Sincronizar con el contenido de hoja"
-    }  
+    } ,
+    empty: {
+        "en": "No card",
+        "ru": "Нет карточки",
+        "es": "No hay tarjeta",
+        "fr": "Pas de carte"
+    } ,
+    noContext: {
+        "en": "Open and close the codeBock to update",
+        "ru": "Открыть и закрыть кодовый блок для обновления",
+        "es": "Abrir y cerrar el código de bloque para actualizar",
+        "fr": "Ouvrir et fermer le bloc de code pour mettre à jour"
+    }
 
 }

@@ -11,7 +11,6 @@ export class CardStat {
     constructor(public plugin: VocabularyView, public app: App, public el: HTMLElement, public ctx: MarkdownPostProcessorContext, public cardList: CardList) { }
 
     async initialize(): Promise<void> {
-        // await this.plugin.loadStats();
         this.id = await this.resolveId();
         this.plugin.viewedIds.push(this.id);
     }

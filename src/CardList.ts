@@ -44,10 +44,17 @@ export class CardList {
     parseSource(src: string): void {
         const lines = src.split('\n');
         for (const line of lines) {
-            const trimmedLine = line.trim();
+            let trimmedLine = line.trim();
+            // delete - or + or * + space at line start
+            trimmedLine = trimmedLine.replace(/^\s*[-+*]\s*/, '');
+
             if (trimmedLine) {
                 const [word, ...restParts] = trimmedLine.split(':');
-                const trimmedWord = word.trim();
+                let trimmedWord = word.trim();
+                // Delete * around
+                trimmedWord = trimmedWord.replace(/^\*+|\*+$/g, '');
+
+
                 const rest = restParts.join(':').trim();
 
                 let transcription = "";
@@ -62,7 +69,8 @@ export class CardList {
                         explanation = rest;
                     }
                 } else {
-                    const match = rest.match(/^<(.+?)>\s*(.*)$/);
+                    // [transcription] or <...>
+                    const match = rest.match(/^[<[](.+?)[>\]]\s*(.*)$/);
                     if (match) {
                         transcription = match[1].trim();
                         explanation = match[2].trim();
@@ -71,14 +79,17 @@ export class CardList {
                     }
                 }
 
-                try {
-                    const card = new Card(trimmedWord, transcription, explanation);
-                    this.push(card);
-                } catch (error) {
-                    console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
+                // Delete * around
+                if (explanation) {
+                    explanation = explanation.replace(/^\*+|\*+$/g, '');
+                    try {
+                        const card = new Card(trimmedWord, transcription, explanation);
+                        this.push(card);
+                    } catch (error) {
+                        console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
+                    }
                 }
             }
         }
     }
 }
-

@@ -1,4 +1,4 @@
-import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext, Notice, Plugin } from 'obsidian';
 import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
@@ -7,10 +7,10 @@ import { createEmpty, getRandomCardWithWeight, getSource, reloadEmptyButton } fr
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCardUtils';
 import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
+import { i10n, userLang } from './i10n';
 
 // add a context menu
 // command insert voca-card/voca-table at cursor position (avoid first line )
-// update 0 entry → error
 
 export default class VocabularyView extends Plugin {
     sourceFromLeaf = ""
@@ -28,8 +28,6 @@ export default class VocabularyView extends Plugin {
             })
         );
         await this.deleteUnusedKeys();
-        // await this.saveStats()
-
     }
 
     async loadStats(): Promise<void> {
@@ -43,10 +41,13 @@ export default class VocabularyView extends Plugin {
     async parseCardCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         await this.loadStats();
         // source is the text in the code block or the markdown page
+        if (!ctx) {
+           new Notice(i10n.noContext[userLang]);
+            return}
+
         source = await getSource(this, source, el, ctx);
 
         if (!source) { // repeated code. do a function
-            el.innerHTML = '';
             createEmpty(el);
             reloadEmptyButton(this, el, ctx);
             return;
@@ -105,6 +106,7 @@ export default class VocabularyView extends Plugin {
 
         if (!card) {
             createEmpty(el);
+            reloadEmptyButton(this, el, ctx);
             return
         }
 
@@ -126,7 +128,6 @@ export default class VocabularyView extends Plugin {
     async renderTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         source = await getSource(this, source, el, ctx);
         if (!source) {
-            el.innerHTML = '';
             createEmpty(el);
             reloadEmptyButton(this, el, ctx);
         }

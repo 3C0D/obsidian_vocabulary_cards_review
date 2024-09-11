@@ -25,9 +25,11 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
     const reload = el.createEl('button', { cls, title: i10n.reload[userLang], text: " ↺" });
     reload.addEventListener("click", async () => {
         const before = plugin.sourceFromLeaf
-        const source = await getSource(plugin,"", el, ctx);
+        if (!ctx) {
+            return
+        }
+        const source = await getSource(plugin, "", el, ctx);
         if (!source) {
-            el.innerHTML = ""
             const parent = el.parentElement
             if (!parent) return
             el.detach()
@@ -35,6 +37,7 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
             reloadEmptyButton(plugin, parent, this.ctx)
             return
         }
+        //don't update if no change
         if (source === before) {
             return
         }

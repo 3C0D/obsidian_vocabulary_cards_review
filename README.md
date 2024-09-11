@@ -1,27 +1,32 @@
-# UNDER CONSTRUCTION  
+# Vocabulary cards  
   
-## Vocabulary cards
+from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards) 
+Fixed and improved  
+    
 
-from [cards](https://github.com/meniam/obsidian-vocabulary-cards) 
-Plugin fixé.  under  construc   ... 
+![alt text](assets/example.jpg)
 
-![alt text](assets/image-1.png)
+codeblock language voca-card or voca-table  
 
 ### New features:  
 
-- Cards appear with a weighted frequency, favoring those with more errors for targeted learning.
-
-- empty codeblock:
-  ````
-  ```voc-card  |     ```voca-card
-               or    ```
-  ```          |
-  ````
-  If the source code block is empty, the code block is populated by the markdown page content(except code blocks). Use `[...]` for **transcription** instead of `<...>`   
+#### Targeted Learning
   
-- The ↺ button is used to synchronize the code block after editing the markdown page. 
+Cards appear favouring more those with more errors for targeted learning.
 
-- caution : if you do a copy past of an existing code block,  delete the id in the new one. Else you are saving stats as one code block.
+#### empty codeblock:
+
+If the source code block is empty, the code block is populated by the markdown page content below. If you put several vocabulary code blocks the source will be the page content between each block. below. 
+  
+Use `[...]` for **transcription** instead of `<...>` 
+        
+The ↺ button is used to synchronize the code block after editing the markdown page. 
+  
+#### each codeblock now have an id
+
+this id is automatically created to allow saving stats on each code block.  
+     
+caution : avoid to copy/paste an existing code block, or immediatly delete the id part inside, to allow saving stats as a new code block.
 
 ## Development (Add this to your README)
 

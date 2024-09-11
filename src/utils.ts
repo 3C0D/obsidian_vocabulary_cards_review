@@ -2,6 +2,7 @@ import { MarkdownPostProcessorContext } from "obsidian";
 import VocabularyView from "./main";
 import { Card } from "./Card";
 import { CardStat } from "./CardStat";
+import { i10n, userLang } from "./i10n";
 
 export async function leafContent(plugin: VocabularyView, ctx: MarkdownPostProcessorContext) {
     const relativePath = ctx.sourcePath
@@ -76,7 +77,7 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
 
 export function createEmpty(el: HTMLElement) {
     const cardEl = el.createEl('div', { cls: "voca-card" });
-    cardEl.createEl('div', { cls: 'voca-card-empty', text: 'No cards found.' });
+    cardEl.createEl('div', { cls: 'voca-card-empty', text: i10n.empty[userLang] });
 }
 
 export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
