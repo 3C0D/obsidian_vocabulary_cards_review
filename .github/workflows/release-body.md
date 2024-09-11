@@ -1,1 +1,1 @@
-official version. I hope with no bug
+starting scripts fixed
