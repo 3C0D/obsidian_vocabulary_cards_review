@@ -25,6 +25,5 @@ data.json
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
-# scss
-styles.scss
+# scss result
 main.css

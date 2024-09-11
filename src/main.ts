@@ -9,16 +9,16 @@ import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
 import { i10n, userLang } from './i10n';
 
-// add a context menu
-// add shortcuts space make visible, right/left arows right/wrong
+// add a context menu ?
+// add wikilinks to other page as ext source ! great idea !
 // command insert voca-card/voca-table at cursor position (avoid first line )
 // bug css don't reduce size menu immediatly
 
+
+
 export default class VocabularyView extends Plugin {
-    // sourceFromLeaf = ""
-    // The value of `sourceFromLeaf` is saved in localStorage to persist it after clicking the wrong/right button.
-    // A simple class variable was lost. I could use a more advanced save function, to not just save stats, but it's not needed.
-    // And it's a cool example of using `saveData(something)`.
+    // sourceFromLeaf = "" lost after clicking the wrong/right button. seems linked to async save between
+    // so it's saved to the localStorage
     stats: Record<string, PageStats>
     viewedIds: string[] = []
 

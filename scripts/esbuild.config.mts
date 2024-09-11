@@ -3,7 +3,7 @@ import process from "process";
 import builtins from "builtin-modules";
 import { config } from 'dotenv';
 import manifest from "../manifest.json" assert { type: "json" };
-import { copyFilesToTargetDir } from "./utils.mts";
+import { copyFilesToTargetDir, removeMainCss } from "./utils.mts";
 import { sassPlugin } from 'esbuild-sass-plugin'
 import glob from 'glob';
 
@@ -32,11 +32,11 @@ switch (REAL) {
 		break;
 	case "0":
 		vaultDir = process.env.TEST_VAULT ?? "./";
-		outdir = `${vaultDir}/.obsidian/plugins/${manifest.id}`		
+		outdir = `${vaultDir}/.obsidian/plugins/${manifest.id}`
 		break;
 	default:
 		vaultDir = "";
-		outdir ="./"
+		outdir = "./"
 }
 
 const entryPoints = ['src/main.ts'];
@@ -49,7 +49,7 @@ if (scssFiles.length) {
 const isScss = (!!(scssFiles.length > 0));
 
 if (!prod) {
-	await copyFilesToTargetDir(vaultDir, isScss,  manifest.id, REAL);
+	await copyFilesToTargetDir(vaultDir, isScss, manifest.id, REAL);
 }
 
 const context = await esbuild.context({
@@ -78,7 +78,18 @@ const context = await esbuild.context({
 		sassPlugin({
 			syntax: 'scss',
 			style: 'expanded',
-		}),],
+		}),
+		{
+			name: 'remove-main-css',
+			setup(build) {
+				build.onEnd(async (result) => {
+					if (result.errors.length === 0) {
+						await removeMainCss(outdir);
+					}
+				});
+			},
+		},
+	],
 	format: "cjs",
 	target: "es2018",
 	logLevel: "info",
