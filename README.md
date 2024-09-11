@@ -16,7 +16,7 @@ Cards appear favouring those with more errors for targeted learning.
 
 #### Empty codeblock:
 
-If the source code block is empty, the code block is populated by the markdown page content below. If you put several vocabulary code blocks the source will be the page content between each block. below. 
+If the source code block is empty, the code block is populated by the markdown page content below. If you put several code blocks the source will be the page content between each block. 
   
 Use `[...]` for **transcription**. in voca-table you can now use `<...>` or `[...]` 
         
