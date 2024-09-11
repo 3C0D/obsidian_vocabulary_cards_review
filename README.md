@@ -12,9 +12,9 @@ codeblock language voca-card or voca-table
 
 #### Targeted Learning
   
-Cards appear favouring more those with more errors for targeted learning.
+Cards appear favouring those with more errors for targeted learning.
 
-#### empty codeblock:
+#### Empty codeblock:
 
 If the source code block is empty, the code block is populated by the markdown page content below. If you put several vocabulary code blocks the source will be the page content between each block. below. 
   
@@ -22,11 +22,11 @@ Use `[...]` for **transcription** instead of `<...>`
         
 The ↺ button is used to synchronize the code block after editing the markdown page. 
   
-#### each codeblock now have an id
+#### Each codeblock have an id
 
 this id is automatically created to allow saving stats on each code block.  
      
-caution : avoid to copy/paste an existing code block, or immediatly delete the id part inside, to allow saving stats as a new code block.
+caution : avoid to copy/paste an existing code block, or immediatly delete the id part inside, to allow saving stats as a new code block.  
 
 ## Development (Add this to your README)
 
