@@ -4,8 +4,8 @@
 	"description": "vocab cards try",
 	"main": "main.js",
 	"scripts": {
-		"dev": "tsx scripts/esbuild.config.mts",
-		"start": "node scripts/start.mjs",
+		"dev": "SET REAL=0 && tsx scripts/esbuild.config.mts",
+		"start": "SET REAL=0 && node scripts/start.mjs",
 		"build": "tsc -noEmit -skipLibCheck && tsx scripts/esbuild.config.mts production",
 		"real": "SET REAL=1 && npm run build",
 		"acp": "tsx scripts/acp.mts",

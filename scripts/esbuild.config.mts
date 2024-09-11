@@ -21,23 +21,25 @@ const prod = process.argv[2] === "production";
 const REAL = process.env.REAL.trim() || "-1";//trim because SET REAL=1 add a space
 
 let vaultDir: string;
+let outdir = "";
+
+console.log("REAL", REAL)
 
 switch (REAL) {
 	case "1":
 		vaultDir = process.env.REAL_VAULT ?? "./";
+		outdir = `${vaultDir}/.obsidian/plugins/${manifest.id}`
 		break;
 	case "0":
-		console.log("case 0")
 		vaultDir = process.env.TEST_VAULT ?? "./";
+		outdir = `${vaultDir}/.obsidian/plugins/${manifest.id}`		
 		break;
 	default:
-		vaultDir = "./";
+		vaultDir = "";
+		outdir ="./"
 }
 
-const outdir = REAL === "0" ? `${vaultDir}/.obsidian/plugins/${manifest.id}` : "./";
-
 const entryPoints = ['src/main.ts'];
-// const scssFiles = glob.sync('src/styles.scss');
 const scssFiles = glob.sync('src/**/*.scss');
 
 if (scssFiles.length) {
@@ -93,5 +95,6 @@ if (prod) {
 	}
 	process.exit(0);
 } else {
+	await copyFilesToTargetDir(vaultDir, isScss, manifest.id, REAL);
 	await context.watch();
 }

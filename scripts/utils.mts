@@ -30,7 +30,7 @@ export async function copyFilesToTargetDir(vaultDir: string, scss: boolean, mani
 
     const man = `${outdir}/manifest.json`;
     const css = `${outdir}/styles.css`;
-    const js = `${outdir}/main.js`;
+    // const js = `${outdir}/main.js`;
 
     if (real === "1") {
         try {
@@ -45,7 +45,7 @@ export async function copyFilesToTargetDir(vaultDir: string, scss: boolean, mani
         }
         try {
             await fs.copyFile("./manifest.json", man);
-            await fs.copyFile("./main.js", js);
+            // await fs.copyFile("./main.js", js);
         } catch (error) {
             console.log("erreur", error);
         }

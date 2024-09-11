@@ -10,7 +10,9 @@ import { PageStats } from './global';
 import { i10n, userLang } from './i10n';
 
 // add a context menu
+// add shortcuts space make visible, right/left arows right/wrong
 // command insert voca-card/voca-table at cursor position (avoid first line )
+// bug css don't reduce size menu immediatly
 
 export default class VocabularyView extends Plugin {
     // sourceFromLeaf = ""
