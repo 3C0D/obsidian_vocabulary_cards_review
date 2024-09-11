@@ -4,38 +4,28 @@ import { Card } from "./Card";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 
-export async function leafContent(plugin: VocabularyView, ctx: MarkdownPostProcessorContext) {
-    const relativePath = ctx.sourcePath
-    const file = plugin.app.vault.getFileByPath(relativePath)
-    if (!file) return
-    const content = await plugin.app.vault.read(file)
-    return content
-}
-
 /**
- * Returns the content of the source code block or the content of the
- * underlying markdown page if the source code block is empty.
- *
- * @returns The content of the markdown page or the source code block (and set this.sourceFromLeaf)
+ * returns the source code block or the content of the markdown page
+ and set this.sourceFromLeaf
  */
 export async function getSource(plugin: VocabularyView, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     plugin.sourceFromLeaf = ""
     // source has some content
-    if (source.trim()) {
-        return source}
+    if (source.trim()) return source;
 
     const sectionInfo = ctx.getSectionInfo(el);
-    if (!sectionInfo) {
-        return "";
-    }
+    if (!sectionInfo) return "";
+
 
     const lines = sectionInfo.text.split('\n');
-    const codeBlockEndLine = sectionInfo.lineEnd;
+    const contentAfter = getContentAfterCodeBlock(lines, sectionInfo.lineEnd);
 
-    // Get the lines after the current code block
+    plugin.sourceFromLeaf = contentAfter;
+    return contentAfter;
+}
+
+function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): string {
     let contentAfter = lines.slice(codeBlockEndLine + 1);
-
-    // Find the next code block that starts with 'voca-card' or 'voca-table'
     const nextCodeBlockIndex = contentAfter.findIndex(line =>
         line.trim().startsWith("```voca-card") ||
         line.trim().startsWith("```voca-table")
@@ -45,10 +35,8 @@ export async function getSource(plugin: VocabularyView, source: string, el: HTML
     if (nextCodeBlockIndex !== -1) {
         contentAfter = contentAfter.slice(0, nextCodeBlockIndex);
     }
-    source = contentAfter.join('\n').trim();
 
-    plugin.sourceFromLeaf = source
-    return source
+    return contentAfter.join('\n').trim();
 }
 
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
@@ -85,13 +73,6 @@ export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: 
     reloadButton.addEventListener("click", async () => {
         await plugin.parseCardCodeBlock(plugin.sourceFromLeaf, el, ctx);
     });
-}
-
-export function getFileFromCtx(ctx: MarkdownPostProcessorContext, plugin: VocabularyView) {
-    const relativePath = ctx.sourcePath
-    const file = plugin.app.vault.getAbstractFileByPath(relativePath)
-    if (!file) return
-    return file
 }
 
 // string from date in ms

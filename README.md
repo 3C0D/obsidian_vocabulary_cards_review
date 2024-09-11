@@ -1,42 +1,40 @@
-# Vocabulary cards  
-  
-from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards) 
-Fixed and improved  
-    
+# Vocabulary cards
+
+from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards)
+Fixed and improved
 
 ![alt text](assets/example.jpg)
 
-codeblock language voca-card or voca-table  
+codeblock language voca-card or voca-table
 
-### New features:  
+### New features:
 
 #### **Targeted Learning**
-  
-Cards appear favouring those with more errors for targeted learning.
+
+Cards are sorted by the number of errors, so cards with more errors are displayed first for targeted learning. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed when cards with 5 wrong answers are displayed often.  
 
 #### **Empty codeblock**
 
-If the source code block is empty, the code block is populated by the markdown page content below. If you put several code blocks the source will be the page content between each block.   
-Use `[...]` for **transcription**.  
-The **↺ button** is used to synchronize the code block after editing the markdown page. 
+If a code block is empty, it will be filled with the content from the markdown page below it. If there are multiple code blocks, each block will be filled with the content between them. 
+Use [...] to indicate transcription.  
+The **↺ button** is used to synchronize the code block after editing the markdown page.
 
-In voca-table you can now use `<...>` or `[...]` 
-        
-  
+In voca-table you can use `<...>` or `[...]` to indicate transcription.
+
 #### **Each codeblock have an id**
 
-this id is automatically created to allow saving stats on each code block.  
-     
-caution : avoid to copy/paste an existing code block, or immediatly delete the id part inside, to allow saving stats as a new code block.  
+Each code block is automatically assigned an ID to save statistics. Caution: avoid copying and pasting existing code blocks. If you do, immediately delete the ID to ensure the statistics are saved as a new code block.
 
 ## Development (Add this to your README)
 
 ### Optional (SASS):
+
 If you add a `styles.scss` file to the `src` folder, it will automatically be converted to CSS when you run commands such as `npm run dev`.
 
 ### Environment Setup
 
 - **Development in the plugins folder of your vault:**
+
   - Set the `REAL` variable to `-1` in the `.env` file. This indicates that you are developing your plugin directly in the plugins folder of your vault.
 
 - **Development outside the vault:**
@@ -45,10 +43,11 @@ If you add a `styles.scss` file to the `src` folder, it will automatically be co
 ### Managing Vaults (IMPORTANT)
 
 - Two vault paths are defined in the `.env` file:
+
   1. One for your **development vault** to protect your main vault.
   2. One for your **main vault**, where you can perform a real installation.
 
-- Depending on the command executed, the `REAL` variable will take a different value and adapt to the corresponding path.
+- The value of the REAL variable will change based on the command executed, adapting to the appropriate vault path.  
 
 ### Available Commands
 

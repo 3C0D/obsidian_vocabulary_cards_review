@@ -13,23 +13,24 @@ import { i10n, userLang } from './i10n';
 // command insert voca-card/voca-table at cursor position (avoid first line )
 
 export default class VocabularyView extends Plugin {
-    sourceFromLeaf = ""
+    // sourceFromLeaf = ""
+    // The value of `sourceFromLeaf` is saved in localStorage to persist it after clicking the wrong/right button.
+    // A simple class variable was lost. I could use a more advanced save function, to not just save stats, but it's not needed.
+    // And it's a cool example of using `saveData(something)`.
     stats: Record<string, PageStats>
     viewedIds: string[] = []
 
     async onload() {
-        this.registerMarkdownCodeBlockProcessor("voca-table", (source, el, ctx) => {
-            this.app.workspace.onLayoutReady(async () => { await this.renderTable(source, el, ctx) })
-        });
-
-        this.registerMarkdownCodeBlockProcessor("voca-card", (source: string, el, ctx) =>
-            this.app.workspace.onLayoutReady(async () => {
-                await this.parseCardCodeBlock(source, el, ctx)
-            })
-        );
+        this.registerCodeBlockProcessors();
         await this.deleteUnusedKeys();
     }
 
+    private registerCodeBlockProcessors() {
+        
+        this.registerMarkdownCodeBlockProcessor("voca-table", this.renderTable.bind(this));
+        this.registerMarkdownCodeBlockProcessor("voca-card", this.parseCardCodeBlock.bind(this));
+    }
+    
     async loadStats(): Promise<void> {
         this.stats = await this.loadData() || {};
     }
@@ -38,9 +39,18 @@ export default class VocabularyView extends Plugin {
         await this.saveData(this.stats);
     }
 
+    get sourceFromLeaf(): string {
+        return localStorage.getItem('sourceFromLeaf') || "";
+    }
+
+    set sourceFromLeaf(value: string) {
+        localStorage.setItem('sourceFromLeaf', value);
+    }
+
+    // source is source (in the code block) or the markdown page
     async parseCardCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         await this.loadStats();
-        // source is the text in the code block or the markdown page
+
         if (!ctx) {
            new Notice(i10n.noContext[userLang]);
             return}
@@ -48,8 +58,7 @@ export default class VocabularyView extends Plugin {
         source = await getSource(this, source, el, ctx);
 
         if (!source) { // repeated code. do a function
-            createEmpty(el);
-            reloadEmptyButton(this, el, ctx);
+            this.createEmptyCard(el, ctx);
             return;
         }
 
@@ -61,20 +70,24 @@ export default class VocabularyView extends Plugin {
         await this.renderCard(cardStat, cardList, el, ctx);
     }
 
+    private createEmptyCard(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+        createEmpty(el);
+        reloadEmptyButton(this, el, ctx);
+    }
+
     async deleteUnusedKeys(): Promise<void> {
-        return new Promise(() => {
+        return new Promise((resolve) => {
             setTimeout(async () => {
                 for (const key in this.stats) {
-                    if (!this.viewedIds.includes(key)) {
-                        if (this.stats.hasOwnProperty(key))
-                            delete this.stats[key];
+                    if (!this.viewedIds.includes(key) && this.stats.hasOwnProperty(key)) {
+                        delete this.stats[key];
                     }
                 }
                 await this.saveStats();
+                resolve();
             }, 3000);
         });
     }
-
 
     async renderCard(
         cardStat: CardStat,
@@ -83,22 +96,26 @@ export default class VocabularyView extends Plugin {
         ctx: MarkdownPostProcessorContext,
         mode: 'next' | 'random' = 'random'
     ) {
-        let card: Card | undefined;
         el.innerHTML = '';
-        // exclude current card
-        const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
-
-        if (mode === 'next') { //to see later. add a button or context menu
-            const iterator = cardList[Symbol.iterator]();
-            const result = iterator.next();
-            card = result.value || remainingCards[0];
-        } else {
-            // weighted random selection based on stats
-            card = getRandomCardWithWeight(remainingCards, cardStat);
-        }
-
+        const card = this.selectCard(cardList, cardStat, mode);
+        if (!card) return
         cardList.currentCard = card;
         await this.renderSingleCard(card, cardList, cardStat, el, ctx);
+    }
+
+    private selectCard(cardList: CardList, cardStat: CardStat, mode: 'next' | 'random'): Card | undefined {
+        const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
+
+        if (!remainingCards.length) return;
+
+        if (mode === 'next') {
+            const iterator = cardList[Symbol.iterator]();
+            const result = iterator.next();
+            return result.value || remainingCards[0];
+        } else {
+            // weighted random selection based on stats
+            return getRandomCardWithWeight(remainingCards, cardStat);
+        }
     }
 
     async renderSingleCard(card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
@@ -121,15 +138,14 @@ export default class VocabularyView extends Plugin {
         }
 
         renderCardContent(cardEl, card);
-
         renderCardButtons(cardEl, this, card, cardStat, cardList, el, ctx);
     }
 
     async renderTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         source = await getSource(this, source, el, ctx);
         if (!source) {
-            createEmpty(el);
-            reloadEmptyButton(this, el, ctx);
+            this.createEmptyCard(el, ctx);
+            return;
         }
         const cardList = new CardList(this, source, ctx);
         renderTableBody(this, cardList, el, ctx);

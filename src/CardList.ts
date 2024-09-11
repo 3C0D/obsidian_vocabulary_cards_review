@@ -5,13 +5,13 @@ import type VocabularyView from './main';
 export class CardList {
     cards: Card[] = [];
     currentCard: Card | undefined = undefined;
-    sourcePath: string;
+    private sourcePath: string;
 
     constructor(public plugin: VocabularyView, public src: string, ctx: MarkdownPostProcessorContext) {
+        this.sourcePath = ctx.sourcePath
         if (src) {
             this.parseSource(src);
         }
-        this.sourcePath = ctx.sourcePath
     }
 
     get length(): number {
@@ -22,8 +22,8 @@ export class CardList {
         this.cards.push(card);
     }
 
-    //usefull if adding a mode next card
-    [Symbol.iterator] = () => {
+    //maybe useful later
+    [Symbol.iterator] = () => { 
         let index = 0;
         return {
             next: () => {
@@ -41,55 +41,62 @@ export class CardList {
         this.parseSource(src);
     }
 
-    parseSource(src: string): void {
+    private parseSource(src: string): void {
         const lines = src.split('\n');
         for (const line of lines) {
-            let trimmedLine = line.trim();
-            // delete - or + or * + space at line start
-            trimmedLine = trimmedLine.replace(/^\s*[-+*]\s*/, '');
-
-            if (trimmedLine) {
-                const [word, ...restParts] = trimmedLine.split(':');
-                let trimmedWord = word.trim();
-                // Delete * around
-                trimmedWord = trimmedWord.replace(/^\*+|\*+$/g, '');
-
-
-                const rest = restParts.join(':').trim();
-
-                let transcription = "";
-                let explanation = "";
-
-                if (this.plugin.sourceFromLeaf) {
-                    const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
-                    if (match) {
-                        transcription = match[1].trim();
-                        explanation = match[2].trim();
-                    } else {
-                        explanation = rest;
-                    }
-                } else {
-                    // [transcription] or <...>
-                    const match = rest.match(/^[<[](.+?)[>\]]\s*(.*)$/);
-                    if (match) {
-                        transcription = match[1].trim();
-                        explanation = match[2].trim();
-                    } else {
-                        explanation = rest;
-                    }
-                }
-
-                // Delete * around
-                if (explanation) {
-                    explanation = explanation.replace(/^\*+|\*+$/g, '');
-                    try {
-                        const card = new Card(trimmedWord, transcription, explanation);
-                        this.push(card);
-                    } catch (error) {
-                        console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
-                    }
-                }
+            const card = this.parseLine(line);
+            if (card) {
+                this.push(card);
             }
         }
+    }
+
+    private parseLine(line: string): Card | null {
+        // delete - or + or * + space at line start
+        const trimmedLine = line.trim().replace(/^\s*[-+*]\s*/, '');
+        if (!trimmedLine) return null;
+
+        const [word, ...restParts] = trimmedLine.split(':');
+        // delete * around
+        const trimmedWord = word.trim().replace(/^\*+|\*+$/g, '');
+        const rest = restParts.join(':').trim();
+
+        const { transcription, explanation } = this.parseTranscriptionAndExplanation(rest);
+
+        if (explanation) {
+            try {
+                return new Card(trimmedWord, transcription, explanation.replace(/^\*+|\*+$/g, ''));
+            } catch (error) {
+                console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
+            }
+        }
+        return null;
+    }
+
+    private parseTranscriptionAndExplanation(rest: string): { transcription: string, explanation: string } {
+        let transcription = "";
+        let explanation = "";
+
+        if (this.plugin.sourceFromLeaf) {
+            // [transcription]
+            const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
+            if (match) {
+                transcription = match[1].trim();
+                explanation = match[2].trim();
+            } else {
+                explanation = rest;
+            }
+        } else {
+            // <...> or [transcription]
+            const match = rest.match(/^[<[](.+?)[>\]]\s*(.*)$/);
+            if (match) {
+                transcription = match[1].trim();
+                explanation = match[2].trim();
+            } else {
+                explanation = rest;
+            }
+        }
+
+        return { transcription, explanation };
     }
 }
