@@ -1,1 +1,1 @@
-all right to be used
+official version. I hope with no bug
