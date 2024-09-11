@@ -1,6 +1,6 @@
 {
 	"name": "vocabulary_cards_try",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "vocab cards try",
 	"main": "main.js",
 	"scripts": {
