@@ -25,9 +25,7 @@ In voca-table you can use `<...>` or `[...]` to indicate transcription.
 
 Each code block is automatically assigned an ID to save statistics. Caution: avoid copying and pasting existing code blocks. If you do, immediately delete the ID to ensure the statistics are saved as a new code block.
 
-# Obsidian Sample Plugin Modifications
-
-The goal of this "sample" is to automate the development and publication processes on github, including the creation of releases.
+## **[Idea to use it better to learn a language with perplexity IA](<assets/Idea to use it better to learn a language.md>)**
   
 ## Development (Add this to your README)
   

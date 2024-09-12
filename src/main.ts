@@ -13,7 +13,7 @@ import { i10n, userLang } from './i10n';
 // add wikilinks to other page as ext source ! great idea !
 // command insert voca-card/voca-table at cursor position (avoid first line )
 // bug css don't reduce size menu immediatly
-
+// add a system of notation in voca-table too. 5 red stars, 5 green stars. because it's faster to see in a table what words you already know. and then to turn it back to voca-card...
 
 
 export default class VocabularyView extends Plugin {
