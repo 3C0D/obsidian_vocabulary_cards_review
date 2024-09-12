@@ -7,23 +7,23 @@ Fixed and improved
 
 codeblock language voca-card or voca-table
 
-### New features:
+### New Features:
 
-#### **Targeted Learning**
+#### **Weighted Random Card Selection System**
 
-Cards are sorted by the number of errors, so cards with more errors are displayed first for targeted learning. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed when cards with 5 wrong answers are displayed often.  
+The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
 
-#### **Empty codeblock**
+#### **Empty codeblock** with voca-card
 
 If a code block is empty, it will be filled with the content from the markdown page below it. If there are multiple code blocks, each block will be filled with the content between them. 
 Use [...] to indicate transcription.  
 The **↺ button** is used to synchronize the code block after editing the markdown page.
 
-In voca-table you can use `<...>` or `[...]` to indicate transcription.
+N.B:In voca-table you can now use  `[...]` too.  
 
 #### **Each codeblock have an id**
 
-Each code block is automatically assigned an ID to save statistics. Caution: avoid copying and pasting existing code blocks. If you do, immediately delete the ID to ensure the statistics are saved as a new code block.
+Each code block is automatically assigned an ID to save statistics. Caution: Caution: Avoid copying and pasting existing code blocks with IDs. If you do, immediately delete the ID to ensure the statistics are saved as a new code block.
 
 ## **[Idea to use it better to learn a language with perplexity IA](<assets/Idea to use it better to learn a language.md>)**
   
