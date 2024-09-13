@@ -1,14 +1,11 @@
-import { MarkdownPostProcessorContext } from "obsidian";
 import { Card } from "./Card";
 import type VocabularyView from './main';
 
 export class CardList {
     cards: Card[] = [];
     currentCard: Card | undefined = undefined;
-    private sourcePath: string;
 
-    constructor(public plugin: VocabularyView, public src: string, ctx: MarkdownPostProcessorContext) {
-        this.sourcePath = ctx.sourcePath
+    constructor(public plugin: VocabularyView, public src: string) {
         if (src) {
             this.parseSource(src);
         }
@@ -22,8 +19,7 @@ export class CardList {
         this.cards.push(card);
     }
 
-    //maybe useful later
-    [Symbol.iterator] = () => { 
+    [Symbol.iterator] = () => {
         let index = 0;
         return {
             next: () => {
@@ -65,6 +61,7 @@ export class CardList {
 
         if (explanation) {
             try {
+                // delete * around
                 return new Card(trimmedWord, transcription, explanation.replace(/^\*+|\*+$/g, ''));
             } catch (error) {
                 console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
@@ -77,24 +74,13 @@ export class CardList {
         let transcription = "";
         let explanation = "";
 
-        if (this.plugin.sourceFromLeaf) {
-            // [transcription]
-            const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
-            if (match) {
-                transcription = match[1].trim();
-                explanation = match[2].trim();
-            } else {
-                explanation = rest;
-            }
+        // [transcription]
+        const match = rest.match(/^\[(.+?)\]\s*(.*)$/);
+        if (match) {
+            transcription = match[1].trim();
+            explanation = match[2].trim();
         } else {
-            // <...> or [transcription]
-            const match = rest.match(/^[<[](.+?)[>\]]\s*(.*)$/);
-            if (match) {
-                transcription = match[1].trim();
-                explanation = match[2].trim();
-            } else {
-                explanation = rest;
-            }
+            explanation = rest;
         }
 
         return { transcription, explanation };

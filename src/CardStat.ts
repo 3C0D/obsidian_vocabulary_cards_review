@@ -74,9 +74,7 @@ export class CardStat {
         }
 
         stats[this.id] = statsToKeep;
-        const source = this.plugin.sourceFromLeaf
         await this.plugin.saveStats();// reintialize this.plugin.sourceFromLeaf !
-        this.plugin.sourceFromLeaf = source
     }
 
     async rightAnswer(card: Card): Promise<void> {
@@ -105,8 +103,6 @@ export class CardStat {
             w: card.wrongCount
         };
 
-        const source = this.plugin.sourceFromLeaf
-        await this.plugin.saveStats();// reintialize this.plugin.sourceFromLeaf !
-        this.plugin.sourceFromLeaf = source
+        await this.plugin.saveStats();
     }
 }

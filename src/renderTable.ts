@@ -34,7 +34,6 @@ export function renderTableBody(plugin: VocabularyView, cardList: CardList, el: 
         renderTableRow(tableBody, card);
     }
 
-    if (plugin.sourceFromLeaf) {
-        reloadButton(plugin, tableEl, cardList, undefined, ctx);
-    }
+    reloadButton(plugin, tableEl, cardList, ctx, 'table');
+
 }

@@ -7,12 +7,12 @@ import VocabularyView from "./main";
 import { createEmpty, getSource, reloadEmptyButton } from './utils';
 import { renderTableBody } from './renderTable';
 
-export function renderCardStats(plugin: VocabularyView, cardEl: HTMLElement, cardStat: CardStat, card: Card, cardList: CardList) {
+export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: Card, cardList: CardList) {
     const statData = cardStat.getStats(card);
     const stat = cardEl.createEl('span', { cls: 'voca-card_stat' });
 
     if (cardList.length) {
-        cardEl.createEl('span', { cls: 'voca-card_stat-total', title: i10n.total[userLang], text: `${cardList.length.toString()} ${i10n.cards[userLang]} ${plugin.sourceFromLeaf ? "/ext" : ''}` });
+        cardEl.createEl('span', { cls: 'voca-card_stat-total', title: i10n.total[userLang], text: `${cardList.length.toString()} ${i10n.cards[userLang]}` });
     }
 
     stat.createEl('span', { cls: 'voca-card_stat-wrong', text: statData[1].toString() });
@@ -20,16 +20,17 @@ export function renderCardStats(plugin: VocabularyView, cardEl: HTMLElement, car
     stat.createEl('span', { cls: 'voca-card_stat-right', text: statData[0].toString() });
 }
 
-export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: CardList, cardStat: CardStat | undefined, ctx: MarkdownPostProcessorContext) {
-    const cls = cardStat ? 'voca-card_button-reload' : 'voca-table_button-reload';
+export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: CardList, ctx: MarkdownPostProcessorContext, type: 'card' | 'table' = 'table', cardStat?: CardStat) {
+
+    const cls = type === 'card' ? 'voca-card_button-reload' : 'voca-table_button-reload';
     const reload = el.createEl('button', { cls, title: i10n.reload[userLang], text: " ↺" });
     reload.addEventListener("click", async () => {
-        const before = plugin.sourceFromLeaf
         if (!ctx) {
             return
         }
-        const source = await getSource(plugin, "", el, ctx);
-        if (!source) {
+
+        const contentAfter = await getSource(el, ctx);
+        if (!contentAfter) {
             const parent = el.parentElement
             if (!parent) return
             el.detach()
@@ -37,18 +38,15 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
             reloadEmptyButton(plugin, parent, this.ctx)
             return
         }
-        //don't update if no change
-        if (source === before) {
-            return
-        }
-        if (cardStat) {
-            cardList.updateSource(source);
+
+        if (type === 'card') {//&& cardStat
+            cardList.updateSource(contentAfter);
             const parent = el.parentElement
             if (!parent) return
             el.detach()
-            await plugin.renderCard(cardStat, cardList, parent, ctx)
+            await plugin.renderCard(plugin, cardStat as CardStat, cardList, parent, ctx, contentAfter)
         } else {
-            cardList.updateSource(source);
+            cardList.updateSource(contentAfter);
             renderTableBody(plugin, cardList, el, ctx)
         }
     })
@@ -70,17 +68,17 @@ export function renderCardContent(cardEl: HTMLElement, card: Card) {
     });
 }
 
-export function renderCardButtons(cardEl: HTMLElement, plugin: VocabularyView, card: Card, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+export function renderCardButtons(plugin: VocabularyView, cardEl: HTMLElement, card: Card, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, src: string) {
     const btns = cardEl.createEl('div', { cls: 'voca-card_buttons' });
 
     const wrong = btns.createEl('button', { cls: 'voca-card_button-danger', text: i10n.repeat[userLang] });
     wrong.addEventListener("click", async () => {
-        await confirm(cardList, cardStat, card, plugin, el, ctx, false);
+        await confirm(plugin, cardList, cardStat, card, el, ctx, false, src);
     });
 
     const success = btns.createEl('button', { cls: 'voca-card_button-success', text: i10n.iKnow[userLang] });
     success.addEventListener("click", async () => {
-        await confirm(cardList, cardStat, card, plugin, el, ctx, true);
+        await confirm(plugin, cardList, cardStat, card, el, ctx, true, src);
     });
 }
 
@@ -93,8 +91,8 @@ function oneCard(cardList: CardList) {
     return false
 }
 
-async function confirm(cardList: CardList, cardStat: CardStat, card: Card, plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean) {
+async function confirm(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, card: Card, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean, src: string) {
     if (oneCard(cardList)) return;
     right ? cardStat.rightAnswer(card) : await cardStat.wrongAnswer(card);
-    plugin.renderCard(cardStat, cardList, el, ctx);
+    plugin.renderCard(plugin, cardStat, cardList, el, ctx, src);
 }

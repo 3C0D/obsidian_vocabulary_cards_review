@@ -1,31 +1,26 @@
 # Vocabulary cards
 
-from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards)
-Fixed and improved
+Source from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards)  
 
-![alt text](assets/example.jpg)
+## Totally Revamped
+Languages of the code block are still `voca-card` or `voca-table` 
+   
+The new format is `word : [transcription] translation`  
+  
+The code block is fed by the markdown page content below it.   
+If there are multiple code blocks, the content between them will be used to fill each block.  
+  
+Each codeblock now has an id, automatically generated, to save statistics. Don't copy an existing codeblock keeping the same id or delete id:123... from the code block.
 
-codeblock language voca-card or voca-table
+The **↺ button** is used to synchronize the codeblock after editing the markdown page. If you have "no card", add some data then open and close the codeblock to update. ↺ will reappear.
 
-### New Features:
-
-#### **Weighted Random Card Selection System**
+Titles will be ignored. So you can use them to fold the content under the codeblock. And of course, organize your page.  
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
 
-#### **Empty codeblock** with voca-card
+![alt text](assets/example.jpg)
 
-If a code block is empty, it will be filled with the content from the markdown page below it. If there are multiple code blocks, each block will be filled with the content between them. 
-Use [...] to indicate transcription.  
-The **↺ button** is used to synchronize the code block after editing the markdown page.
-
-N.B:In voca-table you can now use  `[...]` too.  
-
-#### **Each codeblock have an id**
-
-Each code block is automatically assigned an ID to save statistics. Caution: Caution: Avoid copying and pasting existing code blocks with IDs. If you do, immediately delete the ID to ensure the statistics are saved as a new code block.
-
-## **[Idea to use it better to learn a language with perplexity IA](<assets/Idea to use it better to learn a language.md>)**
+## [Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)
   
 ## Development (Add this to your README)
   

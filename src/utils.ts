@@ -5,27 +5,25 @@ import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 
 /**
- * returns the source code block or the content of the markdown page
- and set this.sourceFromLeaf
+ * returns the content of the markdown page untill next code block if exists
  */
-export async function getSource(plugin: VocabularyView, source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-    plugin.sourceFromLeaf = ""
-    // source has some content
-    if (source.trim()) return source;
-
+export async function getSource(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const sectionInfo = ctx.getSectionInfo(el);
-    if (!sectionInfo) return "";
+    if (!sectionInfo) return ""
+    // page content
+    let lines = sectionInfo.text.split('\n');
+    // remove titles 
+    lines = lines.filter(line => !/^#{1,6}\s+/.test(line));
+    if (!lines.length) return "";
 
-
-    const lines = sectionInfo.text.split('\n');
     const contentAfter = getContentAfterCodeBlock(lines, sectionInfo.lineEnd);
 
-    plugin.sourceFromLeaf = contentAfter;
     return contentAfter;
 }
 
 function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): string {
     let contentAfter = lines.slice(codeBlockEndLine + 1);
+
     const nextCodeBlockIndex = contentAfter.findIndex(line =>
         line.trim().startsWith("```voca-card") ||
         line.trim().startsWith("```voca-table")
@@ -71,7 +69,7 @@ export function createEmpty(el: HTMLElement) {
 export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const reloadButton = el.createEl('button', { cls: 'voca-card_empty-reload', text: '↺' });
     reloadButton.addEventListener("click", async () => {
-        await plugin.parseCardCodeBlock(plugin.sourceFromLeaf, el, ctx);
+        await plugin.parseCodeBlock(el, ctx);
     });
 }
 
