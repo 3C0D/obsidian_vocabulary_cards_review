@@ -17,8 +17,7 @@ import { i10n, userLang } from './i10n';
 
 
 export default class VocabularyView extends Plugin {
-    // sourceFromLeaf = "" lost after clicking the wrong/right button. seems linked to async save between
-    // so it's saved to the localStorage
+    sourceFromLeaf = "" //lost after clicking the wrong/right button.
     stats: Record<string, PageStats>
     viewedIds: string[] = []
 
@@ -41,13 +40,13 @@ export default class VocabularyView extends Plugin {
         await this.saveData(this.stats);
     }
 
-    get sourceFromLeaf(): string {
-        return localStorage.getItem('sourceFromLeaf') || "";
-    }
+    // get sourceFromLeaf(): string {
+    //     return localStorage.getItem('sourceFromLeaf') || "";
+    // }
 
-    set sourceFromLeaf(value: string) {
-        localStorage.setItem('sourceFromLeaf', value);
-    }
+    // set sourceFromLeaf(value: string) {
+    //     localStorage.setItem('sourceFromLeaf', value);
+    // }
 
     // source is source (in the code block) or the markdown page
     async parseCardCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {

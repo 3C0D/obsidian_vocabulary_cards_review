@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises';
 import path from 'path';
+import * as readline from 'readline';
 
 export function askQuestion(question: string, rl: readline.Interface): Promise<string> {
     return new Promise((resolve) => rl.question(question, (input) => resolve(input.trim())));
@@ -26,7 +27,15 @@ export async function copyFilesToTargetDir(vaultDir: string, scss: boolean, mani
     const css = `${outdir}/styles.css`;
 
     try {
-        await fs.mkdir(outdir);
+        await fs.mkdir(outdir, { recursive: true });
+    } catch (error) {
+        if (error.code !== 'EEXIST') {
+            throw error;
+        }
+    }
+
+    try {
+        
         await fs.copyFile("./manifest.json", man);
         if (!scss) {
             await fs.copyFile("./styles.css", css);
@@ -41,7 +50,6 @@ export async function removeMainCss(outdir: string): Promise<void> {
     const mainCssPath = path.join(outdir, 'main.css');
     try {
         await fs.unlink(mainCssPath);
-        console.log(`Removed ${mainCssPath}`);
     } catch (error) {
         if (error.code !== 'ENOENT') {
             console.error(`Error removing main.css: ${error}`);
