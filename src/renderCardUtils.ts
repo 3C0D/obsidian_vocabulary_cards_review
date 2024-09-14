@@ -44,7 +44,7 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
             const parent = el.parentElement
             if (!parent) return
             el.detach()
-            await plugin.renderCard(plugin, cardStat as CardStat, cardList, parent, ctx, contentAfter)
+            await plugin.renderCard( cardStat as CardStat, cardList, parent, ctx, contentAfter)
         } else {
             cardList.updateSource(contentAfter);
             renderTableBody(plugin, cardList, el, ctx)
@@ -94,5 +94,5 @@ function oneCard(cardList: CardList) {
 async function confirm(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, card: Card, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean, src: string) {
     if (oneCard(cardList)) return;
     right ? cardStat.rightAnswer(card) : await cardStat.wrongAnswer(card);
-    plugin.renderCard(plugin, cardStat, cardList, el, ctx, src);
+    plugin.renderCard(cardStat, cardList, el, ctx, src);
 }
