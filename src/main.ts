@@ -9,6 +9,8 @@ import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
 import { i10n, userLang } from './i10n';
 
+//do a list of all codeblocks voca-card or voca-table and check if their id is in stats. do a manual cleaning.
+
 
 export default class VocabularyView extends Plugin {
     stats: Record<string, PageStats>
@@ -17,8 +19,23 @@ export default class VocabularyView extends Plugin {
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => await this.renderTable(source, el, ctx));
         this.registerMarkdownCodeBlockProcessor("voca-card", async (source, el, ctx) => await this.parseCodeBlock(el, ctx));
-        await this.deleteUnusedKeys();
+        // await this.deleteUnusedKeys();
     }
+
+    //  not working on rendered codeblocks I have to work on all md files
+    // async deleteUnusedKeys(): Promise<void> {
+    //     await new Promise(resolve => setTimeout(resolve, 10000));
+    //     // console.log("this.viewedIds", this.viewedIds)
+    //     // console.log("this.stats", Object.keys(this.stats))
+
+    //     const unusedKeys = Object.keys(this.stats).filter(key => !this.viewedIds.includes(key));
+    //     console.log("unusedKeys", unusedKeys)
+    //     if (!unusedKeys.length) return;
+    //     // for (const key of unusedKeys) {
+    //     //     delete this.stats[key];
+    //     // }
+    //     // await this.saveStats();
+    // }
 
     async loadStats(): Promise<void> {
         this.stats = await this.loadData() || {};
@@ -37,6 +54,7 @@ export default class VocabularyView extends Plugin {
         }
 
         const contentAfter = await getSource(el, ctx);
+        // console.log("contentAfter", contentAfter)
 
         if (!contentAfter) {
             this.createEmptyCard(el, ctx);
@@ -54,14 +72,6 @@ export default class VocabularyView extends Plugin {
     private createEmptyCard(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         createEmpty(el);
         reloadEmptyButton(this, el, ctx);
-    }
-
-    async deleteUnusedKeys(): Promise<void> {
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        this.stats = Object.fromEntries(
-            Object.entries(this.stats).filter(([key]) => this.viewedIds.includes(key))
-        );
-        await this.saveStats();
     }
 
     async renderCard(

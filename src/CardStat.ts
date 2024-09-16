@@ -5,6 +5,18 @@ import { PageStats, SectionInfo } from "./global";
 import { CardList } from "./CardList";
 import { createIdfromDate } from "./utils";
 
+// fix need one line between codeblock and first item ?
+    // const markdownFiles = this.app.vault.getMarkdownFiles();
+    // for (const file of markdownFiles) {
+    //     const fileContent = await this.app.vault.cachedRead(file);
+    //     const codeBlockRegex = /^```(voca-card|voca-table)\s*(.*?)\s*\n/gm;
+    //     const codeBlocks = [...fileContent.matchAll(codeBlockRegex)];
+    //     ...
+    //     for (const [, , id] of codeBlocks) {
+    //         this.updateStats(id.trim());
+    //     }
+    // }
+
 export class CardStat {
     private id = "";
 
@@ -17,11 +29,16 @@ export class CardStat {
     ) { }
 
     async initialize(): Promise<void> {
-        this.id = await this.resolveId();
-        this.plugin.viewedIds.push(this.id);
+        await this.resolveId();
     }
 
-    private async resolveId(): Promise<string> {
+    // setViewIds(): void {
+    //     console.log("this.id!!!!!!!", this.id)
+    //     if (this.plugin.viewedIds.includes(this.id)) return;
+    //     this.plugin.viewedIds.push(this.id);
+    // }
+
+    private async resolveId() {
         // get section info lineStart, lineEnd, text (page content)
         const sectionInfo = this.ctx.getSectionInfo(this.el);
         if (!sectionInfo) return "";
@@ -33,9 +50,11 @@ export class CardStat {
         const match = /^`{3,}\S+\s+(.*)$/.exec(codeBlockHeader);
 
         if (!match) {
-            return this.createAndSaveNewId(lines, sectionInfo);
+            this.id = await this.createAndSaveNewId(lines, sectionInfo);
+        } else {
+            this.id = match[1].trim();
         }
-        return match[1].trim();
+        // this.setViewIds();
     }
 
     private async createAndSaveNewId(lines: string[], sectionInfo: SectionInfo): Promise<string> {

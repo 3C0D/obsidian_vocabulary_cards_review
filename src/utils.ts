@@ -38,7 +38,6 @@ function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): st
 }
 
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
-    console.log("essai")
     const randomFactor = 0.2;
     const maxWeight = 5;
     const baseWeight = 1;
