@@ -55,7 +55,7 @@
         text-align: center;
         font-size: 1.5em;
         line-height: 1;
-        white-space: nowrap;
+        // white-space: nowrap;
         font-weight: 500;
     }
 
@@ -97,6 +97,7 @@
         padding: 0.5em 0.75em;
         margin: 1em;
         border-radius: var(--size-4-2);
+        background-color: #0000007b !important;
         border: 0;
         cursor: pointer;
     }
@@ -148,9 +149,9 @@
         display: block;
         bottom: 0;
         right: 0;
-        // top: calc(var (--siz);
         padding: 0.5em 0.75em;
-        margin: 0.1em 0.5em;
+        margin: 0 0.5em;
+        background-color: #0000007b !important;
         border-radius: var(--size-4-2);
         border: 0;
         cursor: pointer;
@@ -158,13 +159,14 @@
 
     .markdown-rendered &_derivative,
     &_derivative {
-        white-space: nowrap;
+        width: 45%;
         line-height: 1.2;
     }
 
     &_derivative-text {
         display: inline-block;
         font-weight: bold;
+        margin-bottom: 0.5rem;
     }
 
     &_derivative-transcription {

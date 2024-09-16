@@ -38,18 +38,28 @@ function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): st
 }
 
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
+    console.log("essai")
+    const randomFactor = 0.2;
+    const maxWeight = 5;
+    const baseWeight = 1;
+    const sortThreshold = 100; // Seuil à partir duquel on trie la liste
+
     const weightedCards = cards.map(card => {
         const [right, wrong] = cardStat.getStats(card);
-        // Calculate the weight according to the provided logic
-        return { card, weight: (wrong + 1) / (right + 1) };
+        let weight = (Math.log(wrong + 1) + baseWeight) / (right + 1);
+        weight = Math.min(weight * (1 + Math.random() * randomFactor), maxWeight);
+        return { card, weight };
     });
+
+    // Trier la liste si le nombre de cartes dépasse le seuil
+    if (cards.length > sortThreshold) {
+        weightedCards.sort((a, b) => b.weight - a.weight);
+    }
 
     const totalWeight = weightedCards.reduce((sum, wc) => sum + wc.weight, 0);
     const randomValue = Math.random() * totalWeight;
 
     let cumulativeWeight = 0;
-
-    // Find the card corresponding to the random weight
     for (const wc of weightedCards) {
         cumulativeWeight += wc.weight;
         if (randomValue < cumulativeWeight) {
@@ -57,8 +67,7 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
         }
     }
 
-    // Fallback if no card is found (should not happen in theory)
-    return cards[Math.floor(Math.random() * cards.length)];
+    return weightedCards[0].card;
 }
 
 export function createEmpty(el: HTMLElement) {
