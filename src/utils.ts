@@ -1,4 +1,4 @@
-import { MarkdownPostProcessorContext } from "obsidian";
+import { MarkdownPostProcessorContext, Notice } from "obsidian";
 import VocabularyView from "./main";
 import { Card } from "./Card";
 import { CardStat } from "./CardStat";
@@ -84,6 +84,40 @@ export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: 
 // string from date in ms
 export function createIdfromDate() {
     return Date.now().toString()
+}
+
+export async function cleanStats() {
+    const markdownFiles = this.app.vault.getMarkdownFiles();
+    const codeBlockRegex = /^```(voca-card|voca-table)\s*(.*?)\s*$/gm;
+    const usedIds = new Set();
+
+    for (const file of markdownFiles) {
+        const fileContent = await this.app.vault.cachedRead(file);
+        const matches = fileContent.matchAll(codeBlockRegex);
+        for (const match of matches) {
+            const id = match[2].trim();
+            if (id) {
+                usedIds.add(id);
+            }
+        }
+    }
+
+    const unusedKeys = Object.keys(this.stats).filter(key => !usedIds.has(key));
+    // console.log("unusedKeys", unusedKeys);
+
+    if (!unusedKeys.length) {
+        new Notice(i10n.nothingToClean[userLang]);
+        return;
+    }
+
+    for (const key of unusedKeys) {
+        delete this.stats[key];
+    }
+
+    new Notice(i10n.statsCleaned[userLang]);
+
+    await this.saveData(this.stats);
+
 }
 
 

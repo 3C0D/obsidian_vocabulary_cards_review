@@ -18,6 +18,8 @@ Titles will be ignored. So you can use them to fold the content under the codebl
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
 
+**Context menu**: for the moment to clean data of old codeblocks.
+
 ![alt text](assets/example.jpg)
 
 ## [Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)

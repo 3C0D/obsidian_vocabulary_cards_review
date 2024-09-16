@@ -32,12 +32,6 @@ export class CardStat {
         await this.resolveId();
     }
 
-    // setViewIds(): void {
-    //     console.log("this.id!!!!!!!", this.id)
-    //     if (this.plugin.viewedIds.includes(this.id)) return;
-    //     this.plugin.viewedIds.push(this.id);
-    // }
-
     private async resolveId() {
         // get section info lineStart, lineEnd, text (page content)
         const sectionInfo = this.ctx.getSectionInfo(this.el);
@@ -54,7 +48,6 @@ export class CardStat {
         } else {
             this.id = match[1].trim();
         }
-        // this.setViewIds();
     }
 
     private async createAndSaveNewId(lines: string[], sectionInfo: SectionInfo): Promise<string> {
