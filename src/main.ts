@@ -3,7 +3,7 @@ import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
-import { cleanStats, createEmpty, getRandomCardWithWeight, getSource } from './utils';
+import { cleanStats, createEmpty, getNextCard, getSource } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCardUtils';
 import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
@@ -14,6 +14,7 @@ import { i10n, userLang } from './i10n';
 export default class VocabularyView extends Plugin {
     stats: Record<string, PageStats>
     viewedIds: string[] = []
+    mode: "random" | "next" = 'random'
 
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
@@ -22,19 +23,29 @@ export default class VocabularyView extends Plugin {
         })
         this.registerMarkdownCodeBlockProcessor("voca-card", async (source, el, ctx) => {
             await this.parseCodeBlock(el, ctx)
-            el.addEventListener("contextmenu", this.handleContextMenu.bind(this));
+            el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el));
         })
     }
 
-    handleContextMenu(event: MouseEvent) {
+    handleContextMenu(event: MouseEvent, el: HTMLElement) {
         event.preventDefault();
         const menu = new Menu();
         menu.addItem((item) =>
             item
-                .setTitle("Clean up old stats (deleted codeblocks)")
+                // .setTitle("Clean up old stats")
+                .setTitle(i10n.clean[userLang])
                 .setIcon("trash")
                 .onClick(async () => await cleanStats.bind(this)())
         );
+        menu.addItem(async (item) => item
+            .setTitle(`${this.mode === "random" ? i10n.next[userLang] : i10n.random[userLang]}`)
+            .setIcon("arrow-right")
+            .onClick(async () => {
+                this.mode = this.mode === "random" ? "next" : "random";
+                await this.saveData({});
+                (el.querySelector(".mode-span") as HTMLSpanElement).textContent = this.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+            })
+        )
         menu.showAtMouseEvent(event);
     }
 
@@ -66,19 +77,20 @@ export default class VocabularyView extends Plugin {
         el.innerHTML = '';
         const container = el.createDiv("voca-card-container");
         const cardEl = container.createDiv("voca-card");
-        
+
         if (!cardList.length) {
             createEmpty(cardEl);
-        }else {
+        } else {
             await this.renderSingleCard(cardList, cardStat, cardEl, ctx, source);
         }
 
         reloadButton(plugin, container, cardList, ctx, 'card', cardStat);
+        mode(this, container)
     }
 
     private selectCard(cardList: CardList, cardStat: CardStat): Card | undefined {
         const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
-        return remainingCards.length ? getRandomCardWithWeight(remainingCards, cardStat) : undefined;
+        return remainingCards.length ? getNextCard(this, remainingCards, cardStat, cardList) : undefined;
     }
 
     async renderSingleCard(cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
@@ -103,4 +115,9 @@ export default class VocabularyView extends Plugin {
         const cardList = new CardList(this, source);
         renderTableBody(this, cardList, el, ctx);
     }
+}
+
+export function mode(plugin: VocabularyView, el: HTMLElement) {
+    const container = el.querySelector('.reload-container') as HTMLElement;
+    container.createEl('span', { cls: 'mode-span', title: i10n.total[userLang], text: plugin.mode ? i10n.random[userLang] : i10n.next[userLang] });
 }

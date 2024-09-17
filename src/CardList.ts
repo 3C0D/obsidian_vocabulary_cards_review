@@ -32,6 +32,15 @@ export class CardList {
         };
     }
 
+    nextCard(): Card | undefined {
+        if (this.cards.length === 0) return undefined;
+        if (!this.currentCard) return this.cards[0];
+        const currentIndex = this.cards.indexOf(this.currentCard);
+        const nextIndex = (currentIndex + 1) % this.cards.length;
+        this.currentCard = this.cards[nextIndex];
+        return this.currentCard;
+    }
+
     updateSource(src: string): void {
         this.cards = [];
         this.parseSource(src);

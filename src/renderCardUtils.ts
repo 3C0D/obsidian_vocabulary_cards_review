@@ -21,16 +21,8 @@ export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: C
 }
 
 export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: CardList, ctx: MarkdownPostProcessorContext, type: 'card' | 'table' = 'table', cardStat?: CardStat) {
-    const containerCls = 'reload-container';
-    const buttonCls = 'reload-container_button-reload';
-
-    console.log("el", el)
-
-    // Créer le conteneur du bouton
-    const buttonContainer = el.createEl('div', { cls: containerCls });
-
-    // Créer le bouton à l'intérieur du conteneur
-    const reload = buttonContainer.createEl('button', { cls: buttonCls, title: i10n.reload[userLang], text: " ↺" });
+    const buttonContainer = el.createEl('div', { cls: 'reload-container' });
+    const reload = buttonContainer.createEl('button', { cls: 'reload-container_button-reload', title: i10n.reload[userLang], text: " ↺" });
 
     reload.addEventListener("click", async () => {
         if (!ctx) {

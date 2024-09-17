@@ -2,27 +2,33 @@
 
 Source from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards)  
 
+New Version:  
+![alt text](assets/last.png)
+Menus in 5 languages `en`, `fr`, `es`, `ru`, `zh`.
+
 ## Totally Revamped
-Languages of the code block are still `voca-card` or `voca-table` 
+For records, the code block languages  are still `voca-card` or `voca-table` 
    
-The new format is `word : [transcription] translation`  
+**The new format** is `word : [transcription] translation` (previously transcription used <>) 
   
-The code block is fed by the markdown page content below it.   
+**The code block is fed by the markdown page content below it.**   
+  
 If there are multiple code blocks, the content between them will be used to fill each block.  
   
-Each codeblock now has an id, automatically generated, to save statistics. Don't copy an existing codeblock keeping the same id or delete id:123... from the code block.
+Each codeblock now has an id, automatically generated, to save statistics. Don't copy an existing codeblock keeping the same id or delete it (id:123...).
 
-The **↺ button** is used to synchronize the codeblock after editing the markdown page. If you have "no card", add some data then open and close the codeblock to update. ↺ will reappear.
+The **↺ button** is used to synchronize the codeblock after editing the markdown page below.  
 
-Titles will be ignored. So you can use them to fold the content under the codeblock. And of course, organize your page.  
+Titles will be ignored. So you can use them to organize and **to fold the content under the codeblock**.
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
 
-**Context menu**: for the moment to clean data of old codeblocks.
+**Context menu**: 
+- Choose mode: `random` or `next`.  
+- Clean data of deleted codeblocks. 
 
-![alt text](assets/example.jpg)
-
-## [Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)
+[Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)  
+  
   
 ## Development (Add this to your README)
   

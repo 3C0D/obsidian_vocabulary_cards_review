@@ -117,6 +117,7 @@
 }
 
 .reload-container {
+    position: relative;
     width: 100%;
     display: flex;
     justify-content: flex-end;
@@ -128,7 +129,14 @@
         border: 0;
         cursor: pointer;
     }
+
+    .mode-span {
+        position: absolute;
+        left: 0;
+        margin-left: 0.5em;
+    }
 }
+
 
 .voca-table {
     font-size: var(--editor-font-size);

@@ -25,19 +25,19 @@ export class Card {
     }
 
     setRight(count: number): void {
-        this._rightCount = Math.max(0, Math.min(count, 5));
+        this._rightCount = Math.max(0, Math.min(count, 9));
     }
 
     setWrong(count: number): void {
-        this._wrongCount = Math.max(0, Math.min(count, 5));
+        this._wrongCount = Math.max(0, Math.min(count, 9));
     }
 
     incrementRight(): void {
-        this._rightCount = Math.min(this._rightCount + 1, 5);
+        this._rightCount = Math.min(this._rightCount + 1, 9);
     }
 
     incrementWrong(): void {
-        this._wrongCount = Math.min(this._wrongCount + 1, 5);
+        this._wrongCount = Math.min(this._wrongCount + 1, 9);
     }
 
     reset(): void {

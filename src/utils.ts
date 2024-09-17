@@ -2,6 +2,8 @@ import { MarkdownPostProcessorContext, Notice } from "obsidian";
 import { Card } from "./Card";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
+import VocabularyView from "./main";
+import { CardList } from "./CardList";
 
 /**
  * returns the content of the markdown page untill next code block if exists
@@ -37,9 +39,19 @@ function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): st
     return contentAfter.join('\n').trim();
 }
 
+export function getNextCard( plugin: VocabularyView , remainingCards: Card[], cardStat: CardStat, cardList: CardList): Card | undefined {
+    if(plugin.mode === "random") {
+        return getRandomCardWithWeight(remainingCards, cardStat)
+    }else {
+        return cardList.nextCard();
+    }
+}
+
+
+
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
     const randomFactor = 0.2;
-    const maxWeight = 5;
+    const maxWeight = 9;
     const baseWeight = 1;
     const sortThreshold = 100; // Threshold above which we sort the list
 
