@@ -9,7 +9,7 @@ import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
 import { i10n, userLang } from './i10n';
 
-// ajouter mode next/random
+// ajouter mode next/random & invert word translation (complex) ?
 
 export default class VocabularyView extends Plugin {
     stats: Record<string, PageStats>
@@ -31,7 +31,7 @@ export default class VocabularyView extends Plugin {
         const menu = new Menu();
         menu.addItem((item) =>
             item
-                .setTitle("Clean up old stats (if deleted a lot of codeblocks)")
+                .setTitle("Clean up old stats (deleted codeblocks)")
                 .setIcon("trash")
                 .onClick(async () => await cleanStats.bind(this)())
         );

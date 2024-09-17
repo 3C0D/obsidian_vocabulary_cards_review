@@ -5,18 +5,6 @@ import { PageStats, SectionInfo } from "./global";
 import { CardList } from "./CardList";
 import { createIdfromDate } from "./utils";
 
-// fix need one line between codeblock and first item ?
-    // const markdownFiles = this.app.vault.getMarkdownFiles();
-    // for (const file of markdownFiles) {
-    //     const fileContent = await this.app.vault.cachedRead(file);
-    //     const codeBlockRegex = /^```(voca-card|voca-table)\s*(.*?)\s*\n/gm;
-    //     const codeBlocks = [...fileContent.matchAll(codeBlockRegex)];
-    //     ...
-    //     for (const [, , id] of codeBlocks) {
-    //         this.updateStats(id.trim());
-    //     }
-    // }
-
 export class CardStat {
     private id = "";
 

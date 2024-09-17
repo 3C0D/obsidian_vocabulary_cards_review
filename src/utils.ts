@@ -9,6 +9,7 @@ import { i10n, userLang } from "./i10n";
  */
 export async function getSource(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const sectionInfo = ctx.getSectionInfo(el);
+    // console.log("sectionInfo", sectionInfo)
     if (!sectionInfo) return ""
     // page content
     let lines = sectionInfo.text.split('\n');
@@ -22,7 +23,7 @@ export async function getSource(el: HTMLElement, ctx: MarkdownPostProcessorConte
 }
 
 function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): string {
-    let contentAfter = lines.slice(codeBlockEndLine + 1);
+    let contentAfter = lines.slice(codeBlockEndLine);
 
     const nextCodeBlockIndex = contentAfter.findIndex(line =>
         line.trim().startsWith("```voca-card") ||
