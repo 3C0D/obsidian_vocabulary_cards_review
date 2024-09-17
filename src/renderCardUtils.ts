@@ -4,7 +4,7 @@ import { CardList } from "./CardList";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 import VocabularyView from "./main";
-import { createEmpty, getSource, reloadEmptyButton } from './utils';
+import { createEmpty, getSource } from './utils';
 import { renderTableBody } from './renderTable';
 
 export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: Card, cardList: CardList) {
@@ -21,30 +21,36 @@ export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: C
 }
 
 export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: CardList, ctx: MarkdownPostProcessorContext, type: 'card' | 'table' = 'table', cardStat?: CardStat) {
+    const containerCls = 'reload-container';
+    const buttonCls = 'reload-container_button-reload';
 
-    const cls = type === 'card' ? 'voca-card_button-reload' : 'voca-table_button-reload';
-    const reload = el.createEl('button', { cls, title: i10n.reload[userLang], text: " ↺" });
+    console.log("el", el)
+
+    // Créer le conteneur du bouton
+    const buttonContainer = el.createEl('div', { cls: containerCls });
+
+    // Créer le bouton à l'intérieur du conteneur
+    const reload = buttonContainer.createEl('button', { cls: buttonCls, title: i10n.reload[userLang], text: " ↺" });
+
     reload.addEventListener("click", async () => {
         if (!ctx) {
             return
         }
-
         const contentAfter = await getSource(el, ctx);
         if (!contentAfter) {
-            const parent = el.parentElement
-            if (!parent) return
-            el.detach()
-            createEmpty(parent)
-            reloadEmptyButton(plugin, parent, this.ctx)
+            const firstChild = el.firstElementChild as HTMLElement;
+            if (!firstChild) return;
+            const secondChild = firstChild.nextElementSibling as HTMLElement;
+            firstChild.detach();
+            createEmpty(el, secondChild);
             return
         }
-
-        if (type === 'card') {//&& cardStat
+        if (type === 'card') {
             cardList.updateSource(contentAfter);
             const parent = el.parentElement
             if (!parent) return
             el.detach()
-            await plugin.renderCard( cardStat as CardStat, cardList, parent, ctx, contentAfter)
+            await plugin.renderCard(plugin, cardStat as CardStat, cardList, parent, ctx, contentAfter)
         } else {
             cardList.updateSource(contentAfter);
             renderTableBody(plugin, cardList, el, ctx)
@@ -94,5 +100,5 @@ function oneCard(cardList: CardList) {
 async function confirm(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, card: Card, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean, src: string) {
     if (oneCard(cardList)) return;
     right ? cardStat.rightAnswer(card) : await cardStat.wrongAnswer(card);
-    plugin.renderCard(cardStat, cardList, el, ctx, src);
+    plugin.renderSingleCard(cardList, cardStat, el, ctx, src);
 }

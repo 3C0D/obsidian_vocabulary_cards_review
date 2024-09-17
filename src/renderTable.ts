@@ -3,6 +3,7 @@ import { Card } from "./Card";
 import { reloadButton } from "./renderCardUtils";
 import { CardList } from './CardList';
 import VocabularyView from './main';
+import { createEmpty } from './utils';
 
 export function renderTableRow(tableBody: HTMLElement, word: Card) {
     const trEl = tableBody.createEl('tr');
@@ -29,11 +30,15 @@ export function renderTableBody(plugin: VocabularyView, cardList: CardList, el: 
     const tableEl = el.createEl('table', { cls: "voca-table" });
     const tableBody = tableEl.createEl('tbody');
 
-    for (const card of cardList) {
-        if (!card) continue;
-        renderTableRow(tableBody, card);
+    if (cardList.length === 0) {
+        createEmpty(tableBody);
+    } else {
+        for (const card of cardList) {
+            if (!card) continue;
+            renderTableRow(tableBody, card);
+        }
     }
 
-    reloadButton(plugin, tableEl, cardList, ctx, 'table');
+    reloadButton(plugin, el, cardList, ctx, 'table');
 
 }

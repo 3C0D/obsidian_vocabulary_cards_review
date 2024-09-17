@@ -1,5 +1,4 @@
 import { MarkdownPostProcessorContext, Notice } from "obsidian";
-import VocabularyView from "./main";
 import { Card } from "./Card";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
@@ -42,7 +41,7 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
     const randomFactor = 0.2;
     const maxWeight = 5;
     const baseWeight = 1;
-    const sortThreshold = 100; // Seuil à partir duquel on trie la liste
+    const sortThreshold = 100; // Threshold above which we sort the list
 
     const weightedCards = cards.map(card => {
         const [right, wrong] = cardStat.getStats(card);
@@ -51,7 +50,7 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
         return { card, weight };
     });
 
-    // Trier la liste si le nombre de cartes dépasse le seuil
+    // Sort the list if the number of cards exceeds the threshold
     if (cards.length > sortThreshold) {
         weightedCards.sort((a, b) => b.weight - a.weight);
     }
@@ -70,16 +69,11 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
     return weightedCards[0].card;
 }
 
-export function createEmpty(el: HTMLElement) {
-    const cardEl = el.createEl('div', { cls: "voca-card" });
-    cardEl.createEl('div', { cls: 'voca-card-empty', text: i10n.empty[userLang] });
-}
-
-export function reloadEmptyButton(plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-    const reloadButton = el.createEl('button', { cls: 'voca-card_empty-reload', text: '↺' });
-    reloadButton.addEventListener("click", async () => {
-        await plugin.parseCodeBlock(el, ctx);
-    });
+export function createEmpty(el: HTMLElement, secondChild?: HTMLElement) {
+    const emptyElement = el.createEl('div', { cls: 'voca-empty', text: i10n.empty[userLang] });
+    if (secondChild) {
+        el.insertBefore(emptyElement, secondChild)
+    }
 }
 
 // string from date in ms

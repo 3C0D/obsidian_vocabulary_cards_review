@@ -16,7 +16,7 @@ export class CardStat {
         private cardList: CardList
     ) { }
 
-    async initialize(): Promise<void> {
+    async initializeId(): Promise<void> {
         await this.resolveId();
     }
 

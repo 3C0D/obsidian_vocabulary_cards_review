@@ -1,11 +1,12 @@
 @mixin voca-box-styles {
     box-shadow: 0 0.25em 0.625em var(--background-modifier-box-shadow);
-    padding: var(--size-4-5) var(--size-4-5);
+    padding: var(--size-4-2);
     border: calc(var(--table-border-width)*1.5) solid var(--table-border-color);
     border-radius: var(--size-4-2);
     word-wrap: break-word;
     word-break: break-word;
 }
+
 
 .voca-card {
     position: relative;
@@ -88,28 +89,6 @@
         cursor: pointer;
     }
 
-    &_button-reload {
-        position: absolute;
-        left: var(--size-4-2);
-        top: calc(var(--size-5-4) * 2.5);
-        padding: 0.5em 0.75em;
-        margin: 1em;
-        border-radius: var(--size-4-2);
-        background-color: #0000007b !important;
-        border: 0;
-        cursor: pointer;
-    }
-
-    &_empty-reload {
-        position: absolute;
-        left: var(--size-4-2);
-        padding: 0.5em 0.75em;
-        margin: 0.75em;
-        border-radius: var(--size-4-2);
-        border: 0;
-        cursor: pointer;
-    }
-
     &_buttons {
         margin-top: var(--size-4-5);
         color: #FFF;
@@ -137,25 +116,24 @@
     }
 }
 
-.voca-table {
-    font-size: var(--editor-font-size);
+.reload-container {
     width: 100%;
-    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5em;
 
     &_button-reload {
-        position: absolute;
-        display: block;
-        bottom: 0;
-        right: 0;
         padding: 0.5em 0.75em;
-        margin: 0 0.5em;
-        background-color: #0000007b !important;
         border-radius: var(--size-4-2);
         border: 0;
         cursor: pointer;
     }
+}
 
-    .markdown-rendered &_derivative,
+.voca-table {
+    font-size: var(--editor-font-size);
+    width: 100%;
+
     &_derivative {
         width: 45%;
         line-height: 1.2;
@@ -164,7 +142,6 @@
     &_derivative-text {
         display: inline-block;
         font-weight: bold;
-        margin-bottom: 0.5rem;
     }
 
     &_derivative-transcription {
@@ -187,9 +164,10 @@
     }
 }
 
-.voca-card-empty {
-    position: relative;
+.voca-empty {
+    width: 60%;
     text-align: center;
     letter-spacing: normal;
     color: rebeccapurple;
+    margin: var(--size-4-2) 0;
 }

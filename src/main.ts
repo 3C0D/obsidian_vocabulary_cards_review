@@ -3,7 +3,7 @@ import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
-import { cleanStats, createEmpty, getRandomCardWithWeight, getSource, reloadEmptyButton } from './utils';
+import { cleanStats, createEmpty, getRandomCardWithWeight, getSource } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCardUtils';
 import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
@@ -57,36 +57,23 @@ export default class VocabularyView extends Plugin {
         const contentAfter = await getSource(el, ctx);
         // console.log("contentAfter", contentAfter)
 
-        if (!contentAfter) {
-            this.createEmptyCard(el, ctx);
-            return;
+        const cardList = new CardList(this, contentAfter);
+        const cardStat = new CardStat(this, this.app, el, ctx, cardList);
+        await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter);
+    }
+
+    async renderCard(plugin: VocabularyView, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+        el.innerHTML = '';
+        const container = el.createDiv("voca-card-container");
+        const cardEl = container.createDiv("voca-card");
+        
+        if (!cardList.length) {
+            createEmpty(cardEl);
+        }else {
+            await this.renderSingleCard(cardList, cardStat, cardEl, ctx, source);
         }
 
-        //parse source & create cards
-        const cardList = new CardList(this, contentAfter);
-        // manage stats & getId
-        const cardStat = new CardStat(this, this.app, el, ctx, cardList);
-        await cardStat.initialize();
-        await this.renderCard(cardStat, cardList, el, ctx, contentAfter);
-    }
-
-    private createEmptyCard(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-        createEmpty(el);
-        reloadEmptyButton(this, el, ctx);
-    }
-
-    async renderCard(
-        cardStat: CardStat,
-        cardList: CardList,
-        el: HTMLElement,
-        ctx: MarkdownPostProcessorContext,
-        source: string,
-    ) {
-        el.innerHTML = '';
-        const card = this.selectCard(cardList, cardStat);
-        if (!card) return
-        cardList.currentCard = card;
-        await this.renderSingleCard(card, cardList, cardStat, el, ctx, source);
+        reloadButton(plugin, container, cardList, ctx, 'card', cardStat);
     }
 
     private selectCard(cardList: CardList, cardStat: CardStat): Card | undefined {
@@ -94,22 +81,26 @@ export default class VocabularyView extends Plugin {
         return remainingCards.length ? getRandomCardWithWeight(remainingCards, cardStat) : undefined;
     }
 
-    async renderSingleCard(card: Card, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
-        const cardEl = el.createDiv("voca-card");
+    async renderSingleCard(cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+        // if only one card
+        if (cardList.cards.length) {
+            await cardStat.initializeId();
+        }
+        const card = this.selectCard(cardList, cardStat);
+        if (!card) return;
+        cardList.currentCard = card;
+
         await cardStat.cleanupSavedStats();
-        renderCardStats(cardEl, cardStat, card, cardList);
-        reloadButton(this, cardEl, cardList, ctx, 'card', cardStat);
-        renderCardContent(cardEl, card);
-        renderCardButtons(this, cardEl, card, cardStat, cardList, el, ctx, source);
+
+        el.innerHTML = '';
+        renderCardStats(el, cardStat, card, cardList);
+        renderCardContent(el, card);
+        renderCardButtons(this, el, card, cardStat, cardList, el, ctx, source);
     }
 
     async renderTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         source = await getSource(el, ctx) || '';
-        if (!source) {
-            this.createEmptyCard(el, ctx);
-        } else {
-            const cardList = new CardList(this, source);
-            renderTableBody(this, cardList, el, ctx);
-        }
+        const cardList = new CardList(this, source);
+        renderTableBody(this, cardList, el, ctx);
     }
 }
