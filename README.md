@@ -11,7 +11,9 @@ For records, the code block languages  are still `voca-card` or `voca-table`
    
 **The new format** is `word : [transcription] translation` (previously transcription used <>) 
   
-**The code block is fed by the markdown page content below it.**   
+**The code block is fed by the markdown page content below it.** 
+    
+**Titles will be ignored**. So you can use them to organize and **fold the content under the codeblock**.
   
 If there are multiple code blocks, the content between them will be used to fill each block.  
   
@@ -19,7 +21,6 @@ Each codeblock now has an id, automatically generated, to save statistics. Don't
 
 The **↺ button** is used to synchronize the codeblock after editing the markdown page below.  
 
-Titles will be ignored. So you can use them to organize and **to fold the content under the codeblock**.
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 9. Cards with 9 right answers are rarely displayed while cards with 9 wrong answers are displayed often.
 
