@@ -19,7 +19,7 @@ If there are multiple code blocks, the content between them will be used to fill
   
 Each codeblock now has an id, automatically generated, to save statistics. Don't copy an existing codeblock keeping the same id or delete it (id:123...).
 
-The **↺ button** is used to synchronize the codeblock after editing the markdown page below.  
+The `↺` **button** is used to synchronize the codeblock after editing the markdown page below.  
 
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 9. Cards with 9 right answers are rarely displayed while cards with 9 wrong answers are displayed often.
