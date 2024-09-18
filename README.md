@@ -3,7 +3,7 @@
 Source from [obsidian-vocabulary-cards](https://github.com/meniam/obsidian-vocabulary-cards)  
 
 New Version:  
-![alt text](assets/last.png)
+![alt text](assets/blured.png)
 Menus in 5 languages `en`, `fr`, `es`, `ru`, `zh`.
 
 ## Totally Revamped
