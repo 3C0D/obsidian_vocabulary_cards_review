@@ -23,9 +23,12 @@ Titles will be ignored. So you can use them to organize and **to fold the conten
 
 The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
 
-**Context menu**: 
+**In Context menu**: 
+- Clean data of deleted codeblocks.  
 - Choose mode: `random` or `next`.  
-- Clean data of deleted codeblocks. 
+- Show inverted: invert the expression and it's translation. Really usefull to learn in both directions.
+
+ ![alt text](assets/invert.png)
 
 [Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)  
   

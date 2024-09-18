@@ -50,21 +50,65 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
     })
 }
 
-
-export function renderCardContent(cardEl: HTMLElement, card: Card) {
-    cardEl.createEl('span', { cls: 'voca-card_derivative', text: card.derivative });
-    cardEl.createEl('span', { cls: 'voca-card_ts', text: card.transcription || ' ' });
-
-    const blurred = cardEl.createEl('span', {
-        cls: 'voca-card_explanation-blurred',
-        text: card.explanation
+export function renderCardContent(plugin: VocabularyView, cardEl: HTMLElement, card: Card) {
+    // Create the main content (derivative or explanation based on invert)
+    cardEl.createEl('span', {
+        cls: 'voca-card_derivative',
+        text: plugin.invert ? card.explanation : card.derivative
     });
 
-    blurred.addEventListener("click", () => {
-        blurred.classList.remove('voca-card_explanation-blurred');
-        blurred.classList.add('voca-card_explanation');
-    });
+    // Create a container for transcription and blurred content
+    const contentContainer = cardEl.createEl('div', { cls: 'voca-card_content-container' });
+
+    if (plugin.invert) {
+        // If inverted, put transcription and derivative in the blurred container
+        const blurredContent = contentContainer.createEl('div', {
+            cls: 'voca-card_explanation-blurred',
+        });
+        blurredContent.createEl('span', {
+            cls: 'voca-card_ts',
+            text: card.transcription || ' '
+        });
+        blurredContent.createEl('span', {
+            cls: 'voca-card_inverted-derivative',
+            text: card.derivative
+        });
+
+        blurredContent.addEventListener("click", () => {
+            blurredContent.classList.remove('voca-card_explanation-blurred');
+            blurredContent.classList.add('voca-card_explanation');
+        });
+    } else {
+        // If not inverted, keep the original structure
+        contentContainer.createEl('span', {
+            cls: 'voca-card_ts',
+            text: card.transcription || ' '
+        });
+        const blurred = contentContainer.createEl('span', {
+            cls: 'voca-card_explanation-blurred',
+            text: card.explanation
+        });
+        blurred.addEventListener("click", () => {
+            blurred.classList.remove('voca-card_explanation-blurred');
+            blurred.classList.add('voca-card_explanation');
+        });
+    }
 }
+
+// export function renderCardContent(plugin: VocabularyView, cardEl: HTMLElement, card: Card) {
+//     cardEl.createEl('span', { cls: 'voca-card_derivative', text: plugin.invert ? card.explanation : card.derivative });
+//     cardEl.createEl('span', { cls: 'voca-card_ts', text: plugin.invert ? "" : card.transcription || ' ' });
+
+//     const blurred = cardEl.createEl('span', {
+//         cls: 'voca-card_explanation-blurred',
+//         text: plugin.invert? card.derivative : card.explanation
+//     });
+
+//     blurred.addEventListener("click", () => {
+//         blurred.classList.remove('voca-card_explanation-blurred');
+//         blurred.classList.add('voca-card_explanation');
+//     });
+// }
 
 export function renderCardButtons(plugin: VocabularyView, cardEl: HTMLElement, card: Card, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, src: string) {
     const btns = cardEl.createEl('div', { cls: 'voca-card_buttons' });

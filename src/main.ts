@@ -15,6 +15,7 @@ export default class VocabularyView extends Plugin {
     stats: Record<string, PageStats>
     viewedIds: string[] = []
     mode: "random" | "next" = 'random'
+    invert = false
 
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
@@ -23,11 +24,10 @@ export default class VocabularyView extends Plugin {
         })
         this.registerMarkdownCodeBlockProcessor("voca-card", async (source, el, ctx) => {
             await this.parseCodeBlock(el, ctx)
-            el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el));
         })
     }
 
-    handleContextMenu(event: MouseEvent, el: HTMLElement) {
+    handleContextMenu(event: MouseEvent, el: HTMLElement, cardStat: CardStat , cardList: CardList  , ctx : MarkdownPostProcessorContext  , contentAfter : string) {
         event.preventDefault();
         const menu = new Menu();
         menu.addItem((item) =>
@@ -43,7 +43,18 @@ export default class VocabularyView extends Plugin {
             .onClick(async () => {
                 this.mode = this.mode === "random" ? "next" : "random";
                 await this.saveData({});
-                (el.querySelector(".mode-span") as HTMLSpanElement).textContent = this.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+                (el.querySelector(".mode-div") as HTMLSpanElement).textContent = this.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+            })
+        )
+
+        menu.addItem(async (item) => item
+            .setTitle(`${this.invert ? i10n.normal[userLang] :  i10n.invert[userLang]}`)
+            .setIcon("arrow-right")
+            .onClick(async () => {
+                this.invert = !this.invert;
+                await this.saveData({});
+                (el.querySelector(".invert-div") as HTMLSpanElement).textContent = this.invert ? i10n.invert[userLang] : i10n.normal[userLang];
+                await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter)
             })
         )
         menu.showAtMouseEvent(event);
@@ -71,6 +82,7 @@ export default class VocabularyView extends Plugin {
         const cardList = new CardList(this, contentAfter);
         const cardStat = new CardStat(this, this.app, el, ctx, cardList);
         await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter);
+        el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el,cardStat, cardList, ctx, contentAfter));
     }
 
     async renderCard(plugin: VocabularyView, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
@@ -81,11 +93,12 @@ export default class VocabularyView extends Plugin {
         if (!cardList.length) {
             createEmpty(cardEl);
         } else {
-            await this.renderSingleCard(cardList, cardStat, cardEl, ctx, source);
+            await plugin.renderSingleCard(cardList, cardStat, cardEl, ctx, source);
         }
 
         reloadButton(plugin, container, cardList, ctx, 'card', cardStat);
-        mode(this, container)
+        mode(plugin, container)
+        invert(plugin, container)
     }
 
     private selectCard(cardList: CardList, cardStat: CardStat): Card | undefined {
@@ -106,7 +119,7 @@ export default class VocabularyView extends Plugin {
 
         el.innerHTML = '';
         renderCardStats(el, cardStat, card, cardList);
-        renderCardContent(el, card);
+        renderCardContent(this,el, card);
         renderCardButtons(this, el, card, cardStat, cardList, el, ctx, source);
     }
 
@@ -119,5 +132,10 @@ export default class VocabularyView extends Plugin {
 
 export function mode(plugin: VocabularyView, el: HTMLElement) {
     const container = el.querySelector('.reload-container') as HTMLElement;
-    container.createEl('span', { cls: 'mode-span', title: i10n.total[userLang], text: plugin.mode ? i10n.random[userLang] : i10n.next[userLang] });
+    container.createEl('div', { cls: 'mode-div', title: i10n.total[userLang], text: plugin.mode ? i10n.random[userLang] : i10n.next[userLang] });
+}
+
+export function invert(plugin: VocabularyView, el: HTMLElement) {
+    const container = el.querySelector('.reload-container') as HTMLElement;
+    container.createEl('div', { cls: 'invert-div', title: i10n.total[userLang], text: plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang] });
 }

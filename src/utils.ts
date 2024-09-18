@@ -47,8 +47,6 @@ export function getNextCard( plugin: VocabularyView , remainingCards: Card[], ca
     }
 }
 
-
-
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
     const randomFactor = 0.2;
     const maxWeight = 9;
