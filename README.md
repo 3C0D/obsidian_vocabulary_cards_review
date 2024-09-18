@@ -21,7 +21,7 @@ The **↺ button** is used to synchronize the codeblock after editing the markdo
 
 Titles will be ignored. So you can use them to organize and **to fold the content under the codeblock**.
 
-The card selection process employs a weighted random system. The number of right and wrong answers is limited to 5. Cards with 5 right answers are rarely displayed while cards with 5 wrong answers are displayed often.
+The card selection process employs a weighted random system. The number of right and wrong answers is limited to 9. Cards with 9 right answers are rarely displayed while cards with 9 wrong answers are displayed often.
 
 **In Context menu**: 
 - Clean data of deleted codeblocks.  
