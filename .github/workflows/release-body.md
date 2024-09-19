@@ -1,2 +1,1 @@
-You can now choose the order of distribution of cards (random or next)
-And invert the view. The translation is shown and the original expression and its transcription blured. those options are available from the context menu.
+code cleaning
