@@ -70,7 +70,7 @@ export class CardList {
 
         if (explanation) {
             try {
-                // delete * around
+                // delete "**" around
                 return new Card(trimmedWord, transcription, explanation.replace(/^\*+|\*+$/g, ''));
             } catch (error) {
                 console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);

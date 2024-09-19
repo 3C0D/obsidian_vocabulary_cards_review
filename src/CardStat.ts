@@ -16,11 +16,7 @@ export class CardStat {
         private cardList: CardList
     ) { }
 
-    async initializeId(): Promise<void> {
-        await this.resolveId();
-    }
-
-    private async resolveId() {
+    async resolveId() {
         // get section info lineStart, lineEnd, text (page content)
         const sectionInfo = this.ctx.getSectionInfo(this.el);
         if (!sectionInfo) return "";
@@ -74,7 +70,7 @@ export class CardStat {
         }
 
         stats[this.id] = statsToKeep;
-        await this.plugin.saveStats();// reintialize this.plugin.sourceFromLeaf !
+        await this.plugin.saveStats();
     }
 
     async rightAnswer(card: Card): Promise<void> {

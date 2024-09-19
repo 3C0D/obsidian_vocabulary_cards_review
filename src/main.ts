@@ -9,7 +9,6 @@ import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
 import { i10n, userLang } from './i10n';
 
-// ajouter mode next/random & invert word translation (complex) ?
 
 export default class VocabularyView extends Plugin {
     stats: Record<string, PageStats>
@@ -32,7 +31,7 @@ export default class VocabularyView extends Plugin {
         const menu = new Menu();
         menu.addItem((item) =>
             item
-                // .setTitle("Clean up old stats")
+                // clean up old stats
                 .setTitle(i10n.clean[userLang])
                 .setIcon("trash")
                 .onClick(async () => await cleanStats.bind(this)())
@@ -48,6 +47,7 @@ export default class VocabularyView extends Plugin {
         )
 
         menu.addItem(async (item) => item
+            // invert showing
             .setTitle(`${this.invert ? i10n.normal[userLang] :  i10n.invert[userLang]}`)
             .setIcon("arrow-right")
             .onClick(async () => {
@@ -77,8 +77,6 @@ export default class VocabularyView extends Plugin {
         }
 
         const contentAfter = await getSource(el, ctx);
-        // console.log("contentAfter", contentAfter)
-
         const cardList = new CardList(this, contentAfter);
         const cardStat = new CardStat(this, this.app, el, ctx, cardList);
         await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter);
@@ -107,9 +105,8 @@ export default class VocabularyView extends Plugin {
     }
 
     async renderSingleCard(cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
-        // if only one card
         if (cardList.cards.length) {
-            await cardStat.initializeId();
+            await cardStat.resolveId();
         }
         const card = this.selectCard(cardList, cardStat);
         if (!card) return;
@@ -132,10 +129,10 @@ export default class VocabularyView extends Plugin {
 
 export function mode(plugin: VocabularyView, el: HTMLElement) {
     const container = el.querySelector('.reload-container') as HTMLElement;
-    container.createEl('div', { cls: 'mode-div', title: i10n.total[userLang], text: plugin.mode ? i10n.random[userLang] : i10n.next[userLang] });
+    container.createEl('div', { cls: 'mode-div', text: plugin.mode ? i10n.random[userLang] : i10n.next[userLang] });
 }
 
 export function invert(plugin: VocabularyView, el: HTMLElement) {
     const container = el.querySelector('.reload-container') as HTMLElement;
-    container.createEl('div', { cls: 'invert-div', title: i10n.total[userLang], text: plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang] });
+    container.createEl('div', { cls: 'invert-div', text: plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang] });
 }

@@ -95,21 +95,6 @@ export function renderCardContent(plugin: VocabularyView, cardEl: HTMLElement, c
     }
 }
 
-// export function renderCardContent(plugin: VocabularyView, cardEl: HTMLElement, card: Card) {
-//     cardEl.createEl('span', { cls: 'voca-card_derivative', text: plugin.invert ? card.explanation : card.derivative });
-//     cardEl.createEl('span', { cls: 'voca-card_ts', text: plugin.invert ? "" : card.transcription || ' ' });
-
-//     const blurred = cardEl.createEl('span', {
-//         cls: 'voca-card_explanation-blurred',
-//         text: plugin.invert? card.derivative : card.explanation
-//     });
-
-//     blurred.addEventListener("click", () => {
-//         blurred.classList.remove('voca-card_explanation-blurred');
-//         blurred.classList.add('voca-card_explanation');
-//     });
-// }
-
 export function renderCardButtons(plugin: VocabularyView, cardEl: HTMLElement, card: Card, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, src: string) {
     const btns = cardEl.createEl('div', { cls: 'voca-card_buttons' });
 

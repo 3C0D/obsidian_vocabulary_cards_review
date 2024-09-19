@@ -9,7 +9,7 @@ Menus in 5 languages `en`, `fr`, `es`, `ru`, `zh`.
 ## Totally Revamped
 For records, the code block languages  are still `voca-card` or `voca-table` 
    
-**The new format** is `word : [transcription] translation` (previously transcription used <>) 
+**The new format** is `word : [transcription] explanation` (previously transcription used <>) 
   
 **The code block is fed by the markdown page content below it.** 
     
@@ -27,7 +27,7 @@ The card selection process employs a weighted random system. The number of right
 **In Context menu**: 
 - Clean data of deleted codeblocks.  
 - Choose mode: `random` or `next`.  
-- Show inverted: invert the expression and it's translation. Really usefull to learn in both directions.
+- Show inverted: invert the expression and it's explanation. Really usefull to learn in both directions.
 
  ![alt text](assets/invert.png)
 
