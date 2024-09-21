@@ -1,1 +1,1 @@
-automatic mode
+plugin name update
