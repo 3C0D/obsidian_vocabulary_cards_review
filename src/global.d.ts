@@ -12,3 +12,9 @@ export interface SectionInfo {
     lineEnd: number;
     text: string;
 }
+
+export interface Settings {
+    stats: Record<string, PageStats>;
+    showTime: number;
+    explainTime: number
+}

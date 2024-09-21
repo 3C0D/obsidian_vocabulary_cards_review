@@ -40,5 +40,4 @@ export function renderTableBody(plugin: VocabularyView, cardList: CardList, el: 
     }
 
     reloadButton(plugin, el, cardList, ctx, 'table');
-
 }

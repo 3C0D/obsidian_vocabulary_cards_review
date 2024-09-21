@@ -4,7 +4,7 @@ import { CardList } from "./CardList";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 import VocabularyView from "./main";
-import { createEmpty, getSource } from './utils';
+import { createEmpty, getSource, renderCard, renderSingleCard } from './utils';
 import { renderTableBody } from './renderTable';
 
 export function renderCardStats(cardEl: HTMLElement, cardStat: CardStat, card: Card, cardList: CardList) {
@@ -31,18 +31,23 @@ export function reloadButton(plugin: VocabularyView, el: HTMLElement, cardList: 
         const contentAfter = await getSource(el, ctx);
         if (!contentAfter) {
             const firstChild = el.firstElementChild as HTMLElement;
-            if (!firstChild) return;
             const secondChild = firstChild.nextElementSibling as HTMLElement;
             firstChild.detach();
             createEmpty(el, secondChild);
+            if (type === 'card') {
+                el.querySelector('.mode-div')?.classList.add('hidden');
+                el.querySelector('.invert-div')?.classList.add('hidden');
+            }
             return
         }
         if (type === 'card') {
+            el.querySelector('.mode-div')?.classList.remove('hidden');
+            el.querySelector('.invert-div')?.classList.remove('hidden');
             cardList.updateSource(contentAfter);
             const parent = el.parentElement
             if (!parent) return
             el.detach()
-            await plugin.renderCard(plugin, cardStat as CardStat, cardList, parent, ctx, contentAfter)
+            await renderCard(plugin, cardStat as CardStat, cardList, parent, ctx, contentAfter)
         } else {
             cardList.updateSource(contentAfter);
             renderTableBody(plugin, cardList, el, ctx)
@@ -121,5 +126,5 @@ function oneCard(cardList: CardList) {
 async function confirm(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, card: Card, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean, src: string) {
     if (oneCard(cardList)) return;
     right ? cardStat.rightAnswer(card) : await cardStat.wrongAnswer(card);
-    plugin.renderSingleCard(cardList, cardStat, el, ctx, src);
+    await renderSingleCard(plugin, cardList, cardStat, el, ctx, src);
 }

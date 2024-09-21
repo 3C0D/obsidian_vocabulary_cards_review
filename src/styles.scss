@@ -59,47 +59,47 @@
         font-weight: 500;
     }
 
-  &_content-container {
-      margin-top: var(--size-4-2);
-  }
+    &_content-container {
+        margin-top: var(--size-4-2);
+    }
 
-  &_ts {
-      display: block;
-      line-height: 1;
-      color: rgb(14, 136, 14);
-      text-align: center;
-  }
+    &_ts {
+        display: block;
+        line-height: 1;
+        color: rgb(14, 136, 14);
+        text-align: center;
+    }
 
-  &_inverted-derivative {
-      display: block;
-      text-align: center;
-      font-size: 1.2em;
-      line-height: 1.2;
-      margin-top: var(--size-4-2);
-  }
+    &_inverted-derivative {
+        display: block;
+        text-align: center;
+        font-size: 1.2em;
+        line-height: 1.2;
+        margin-top: var(--size-4-2);
+    }
 
-  &_explanation-blurred,
-  &_explanation {
-      font-size: 110%;
-      display: flex;
-      flex-direction: column;
-      width: 80%;
-      min-height: 70px;
-      margin: 0.5em auto;
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      padding: 1em;
-      background-color: rgba(47, 81, 89, 0.1);
-      color: #FFF;
-      transition: filter 0.3s ease;
-  }
+    &_explanation-blurred,
+    &_explanation {
+        font-size: 110%;
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        min-height: 70px;
+        margin: 0.5em auto;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        padding: 1em;
+        background-color: rgba(47, 81, 89, 0.1);
+        color: #FFF;
+        transition: filter 0.3s ease;
+    }
 
-  &_explanation-blurred {
-      filter: blur(8px);
-      user-select: none;
-      cursor: pointer;
-  }
+    &_explanation-blurred {
+        filter: blur(8px);
+        user-select: none;
+        cursor: pointer;
+    }
 
     &_buttons {
         margin-top: var(--size-4-5);
@@ -133,6 +133,7 @@
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    // align-items: center;
     margin-top: 0.5em;
 
     &_button-reload {
@@ -140,6 +141,17 @@
         border-radius: var(--size-4-2);
         border: 0;
         cursor: pointer;
+    }
+
+    &_play-button {
+        margin-right: 0.5em;
+        margin-left: 0.5em;
+        padding: 0.5em 0.7em;
+        border-radius: var(--size-4-2);
+        border: 0;
+        cursor: pointer;
+        background-color: var(--interactive-accent);
+        color: var(--text-on-accent);
     }
 
     .invert-div,
@@ -199,4 +211,8 @@
     letter-spacing: normal;
     color: rebeccapurple;
     margin: var(--size-4-2) 0;
+}
+
+.hidden {
+    display: none;
 }

@@ -4,7 +4,7 @@ interface i10n {
 
 export const userLang = navigator.language || 'en';
 
-export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n, tableSwitch: i10n, cardSwitch: i10n } = {
+export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n, tableSwitch: i10n, cardSwitch: i10n, derivateTime: i10n, explanationTime: i10n } = {
     iKnow: {
         "en": "I know",
         "ru": "Знаю",
@@ -123,5 +123,19 @@ export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, c
         "es": "Cambiar a voca-card",
         "fr": "Changer en voca-card",
         "zh": "切换到voca-card"
+    },
+    derivateTime: {
+        "en": "Time to show the expression (in seconds)",
+        "ru": "Время для отображения выражения (в секундах)",
+        "es": "Tiempo para mostrar la expresión (en segundos)",
+        "fr": "Temps pour montrer l'expression (en secondes)",
+        "zh": "显示表达式的时间(秒)"
+    },
+    explanationTime: {
+        "en": "Time to show the explanation (in seconds)",
+        "ru": "Время для отображения объяснения (в секундах)",
+        "es": "Tiempo para mostrar la explicación (en segundos)",
+        "fr": "Temps pour montrer l'explication (en secondes)",
+        "zh": "显示解释的时间(秒)"
     }
 }

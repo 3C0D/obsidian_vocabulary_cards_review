@@ -1,9 +1,11 @@
-import { MarkdownPostProcessorContext, Notice } from "obsidian";
+import { MarkdownPostProcessorContext, Menu, Notice } from "obsidian";
 import { Card } from "./Card";
 import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 import VocabularyView from "./main";
 import { CardList } from "./CardList";
+import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from "./renderCardUtils";
+import { disableButtons, toggleAutoMode } from "./automaticMode";
 
 /**
  * returns the content of the markdown page untill next code block if exists
@@ -13,13 +15,11 @@ export async function getSource(el: HTMLElement, ctx: MarkdownPostProcessorConte
     if (!sectionInfo) return ""
     // page content
     const lines = sectionInfo.text.split('\n').filter(line => !/^#{1,6}\s+/.test(line));
-    if (!lines.length) return "";
-
     return getContentAfterCodeBlock(lines, sectionInfo.lineEnd);
 }
 
 function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): string {
-    let contentAfter = lines.slice(codeBlockEndLine);
+    let contentAfter = lines.slice(codeBlockEndLine + 1);
 
     const nextCodeBlockIndex = contentAfter.findIndex(line =>
         line.trim().startsWith("```voca-card") ||
@@ -117,7 +117,7 @@ export async function cleanStats() {
         }
     }
 
-    const unusedKeys = Object.keys(this.stats).filter(key => !usedIds.has(key));
+    const unusedKeys = Object.keys(this.settings.stats).filter(key => !usedIds.has(key));
 
     if (!unusedKeys.length) {
         new Notice(i10n.nothingToClean[userLang]);
@@ -125,12 +125,130 @@ export async function cleanStats() {
     }
 
     for (const key of unusedKeys) {
-        delete this.stats[key];
+        delete this.settings.stats[key];
     }
 
     new Notice(i10n.statsCleaned[userLang]);
 
-    await this.saveData(this.stats);
+    await this.saveSettings;
 }
 
+export function handleContextMenu(event: MouseEvent, plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string, cardStat?: CardStat, cardList?: CardList, contentAfter?: string) {
+    event.preventDefault();
+    const isVocaCard = el.classList.contains("block-language-voca-card");
+    const menu = new Menu();
 
+    menu.addItem((item) => item
+        // clean up old stats
+        .setTitle(i10n.clean[userLang])
+        .setIcon("trash")
+        .onClick(async () => await cleanStats.bind(plugin)())
+    );
+
+    menu.addItem((item) => item
+        // change language
+        .setTitle(isVocaCard ? i10n.tableSwitch[userLang] : i10n.cardSwitch[userLang])
+        .setIcon("arrow-right")
+        .onClick(async () => {
+            await replaceLanguage(plugin, ctx, el);
+            el.detach();
+            if (!isVocaCard) {
+                await plugin.parseCodeBlock(el, ctx, source);
+            } else {
+                await plugin.renderTable(source, el, ctx);
+                el.addEventListener("contextmenu", (event) => handleContextMenu(event, plugin, el, ctx, source));
+            }
+        })
+    );
+
+    if (cardStat && cardList && contentAfter) {
+        menu.addItem((item) => item
+            // change mode (random/next)
+            .setTitle(plugin.mode === "random" ? i10n.next[userLang] : i10n.random[userLang])
+            .setIcon("arrow-right")
+            .onClick(async () => {
+                plugin.mode = plugin.mode === "random" ? "next" : "random";
+                await plugin.saveSettings();
+                (el.querySelector(".mode-div") as HTMLSpanElement).textContent = plugin.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+            })
+        );
+
+        menu.addItem((item) => item
+            // invert showing
+            .setTitle(plugin.invert ? i10n.normal[userLang] : i10n.invert[userLang])
+            .setIcon("arrow-right")
+            .onClick(async () => {
+                plugin.invert = !plugin.invert;
+                await plugin.saveSettings();
+                (el.querySelector(".invert-div") as HTMLSpanElement).textContent = plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang];
+                await renderCard(plugin, cardStat, cardList, el, ctx, contentAfter);
+            })
+        );
+    }
+
+    menu.showAtMouseEvent(event);
+}
+
+export async function renderCard(plugin: VocabularyView, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+    el.innerHTML = '';
+    const container = el.createDiv("voca-card-container");
+    const cardEl = container.createDiv("voca-card");
+
+    if (!cardList.length) {
+        createEmpty(cardEl);
+    } else {
+        await renderSingleCard(plugin, cardList, cardStat, cardEl, ctx, source);
+    }
+
+    reloadButton(plugin, container, cardList, ctx, 'card', cardStat);
+    mode(plugin, container);
+    invert(plugin, container);
+
+    if (!cardList.length) {
+        el.querySelector('.mode-div')?.classList.add('hidden');
+        el.querySelector('.invert-div')?.classList.add('hidden');
+    }
+
+    const buttonContainer = el.querySelector('.reload-container') as HTMLElement;
+    const playButton = buttonContainer.createEl('button', {
+        cls: 'reload-container_play-button',
+        text: plugin.autoMode ? '⏹' : '▶',
+        attr: { title: plugin.autoMode ? 'Stop' : 'Start Auto Mode' }
+    });
+    playButton.addEventListener('click', async () => await toggleAutoMode(plugin, cardList, cardStat, container, ctx, source));
+
+    if (plugin.autoMode) {
+        disableButtons(cardEl);
+    }
+}
+
+export function selectCard(plugin: VocabularyView, cardList: CardList, cardStat: CardStat): Card | undefined {
+    const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
+    return remainingCards.length ? getNextCard(plugin, remainingCards, cardStat, cardList) : undefined;
+}
+
+export async function renderSingleCard(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+    if (cardList.cards.length) {
+        await cardStat.resolveId();
+    }
+    const card = selectCard(plugin, cardList, cardStat);
+    if (!card) return;
+    cardList.currentCard = card;
+
+    await cardStat.cleanupSavedStats();
+
+    el.innerHTML = '';
+    renderCardStats(el, cardStat, card, cardList);
+    renderCardContent(plugin, el, card);
+    renderCardButtons(plugin, el, card, cardStat, cardList, el, ctx, source);
+}
+
+export function mode(plugin: VocabularyView, el: HTMLElement) {
+    const container = el.querySelector('.reload-container') as HTMLElement;
+    container.createEl('div', { cls: 'mode-div', text: plugin.mode === "random" ? i10n.random[userLang] : i10n.next[userLang] });
+}
+
+export function invert(plugin: VocabularyView, el: HTMLElement) {
+    const container = el.querySelector('.reload-container') as HTMLElement;
+    container.createEl('div', { cls: 'invert-div', text: plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang] });
+}

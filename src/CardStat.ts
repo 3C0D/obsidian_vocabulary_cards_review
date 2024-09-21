@@ -50,14 +50,14 @@ export class CardStat {
     }
 
     getStats(card: Card): [number, number] {
-        const pageStats = this.plugin.stats[this.id];
+        const pageStats = this.plugin.settings.stats[this.id];
         if (!pageStats) return [card.rightCount, card.wrongCount];//[0,0] by default
         const answer = pageStats[card.derivative];
         return answer ? [answer.r, answer.w] : [card.rightCount, card.wrongCount];
     }
 
     async cleanupSavedStats(): Promise<void> {
-        const stats = this.plugin.stats
+        const stats = this.plugin.settings.stats
         if (!stats[this.id]) return
 
         const currentDerivatives = new Set(this.cardList.cards.map(card => card.derivative));
@@ -70,7 +70,7 @@ export class CardStat {
         }
 
         stats[this.id] = statsToKeep;
-        await this.plugin.saveStats();
+        await this.plugin.saveSettings();
     }
 
     async rightAnswer(card: Card): Promise<void> {
@@ -82,8 +82,8 @@ export class CardStat {
     }
 
     private async updateAnswer(card: Card, isRight: boolean): Promise<void> {
-        if (!this.plugin.stats[this.id]) {
-            this.plugin.stats[this.id] = {};
+        if (!this.plugin.settings.stats[this.id]) {
+            this.plugin.settings.stats[this.id] = {};
         }
 
         if (isRight) {
@@ -94,11 +94,11 @@ export class CardStat {
             card.setRight(0);
         }
 
-        this.plugin.stats[this.id][card.derivative] = {
+        this.plugin.settings.stats[this.id][card.derivative] = {
             r: card.rightCount,
             w: card.wrongCount
         };
 
-        await this.plugin.saveStats();
+        await this.plugin.saveSettings();
     }
 }
