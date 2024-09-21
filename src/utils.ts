@@ -10,17 +10,12 @@ import { CardList } from "./CardList";
  */
 export async function getSource(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     const sectionInfo = ctx.getSectionInfo(el);
-    // console.log("sectionInfo", sectionInfo)
     if (!sectionInfo) return ""
     // page content
-    let lines = sectionInfo.text.split('\n');
-    // remove titles 
-    lines = lines.filter(line => !/^#{1,6}\s+/.test(line));
+    const lines = sectionInfo.text.split('\n').filter(line => !/^#{1,6}\s+/.test(line));
     if (!lines.length) return "";
 
-    const contentAfter = getContentAfterCodeBlock(lines, sectionInfo.lineEnd);
-
-    return contentAfter;
+    return getContentAfterCodeBlock(lines, sectionInfo.lineEnd);
 }
 
 function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): string {
@@ -39,12 +34,28 @@ function getContentAfterCodeBlock(lines: string[], codeBlockEndLine: number): st
     return contentAfter.join('\n').trim();
 }
 
-export function getNextCard( plugin: VocabularyView , remainingCards: Card[], cardStat: CardStat, cardList: CardList): Card | undefined {
-    if(plugin.mode === "random") {
-        return getRandomCardWithWeight(remainingCards, cardStat)
-    }else {
-        return cardList.nextCard();
-    }
+export async function replaceLanguage(plugin: VocabularyView, ctx: MarkdownPostProcessorContext, el: HTMLElement) {
+    const sectionInfo = ctx.getSectionInfo(el);
+    if (!sectionInfo) return "";
+    const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
+    if (!file) return "";
+
+    // get header
+    const lines = sectionInfo.text.split('\n');
+    const codeBlockHeader = lines[sectionInfo.lineStart] ?? '';
+
+    await plugin.app.vault.process(file, (content) => {
+        const newLines = [...lines];
+        newLines[sectionInfo.lineStart] = codeBlockHeader.includes("voca-card") ? newLines[sectionInfo.lineStart].replace("voca-card", "voca-table") : newLines[sectionInfo.lineStart].replace("voca-table", "voca-card");
+        const newText = newLines.join('\n');
+        return content.replace(sectionInfo.text, newText);
+    });
+}
+
+export function getNextCard(plugin: VocabularyView, remainingCards: Card[], cardStat: CardStat, cardList: CardList): Card | undefined {
+    return plugin.mode === "random"
+        ? getRandomCardWithWeight(remainingCards, cardStat)
+        : cardList.nextCard();
 }
 
 export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card {
@@ -55,8 +66,7 @@ export function getRandomCardWithWeight(cards: Card[], cardStat: CardStat): Card
 
     const weightedCards = cards.map(card => {
         const [right, wrong] = cardStat.getStats(card);
-        let weight = (Math.log(wrong + 1) + baseWeight) / (right + 1);
-        weight = Math.min(weight * (1 + Math.random() * randomFactor), maxWeight);
+        const weight = Math.min((Math.log(wrong + 1) + baseWeight) / (right + 1) * (1 + Math.random() * randomFactor), maxWeight);
         return { card, weight };
     });
 
@@ -108,7 +118,6 @@ export async function cleanStats() {
     }
 
     const unusedKeys = Object.keys(this.stats).filter(key => !usedIds.has(key));
-    // console.log("unusedKeys", unusedKeys);
 
     if (!unusedKeys.length) {
         new Notice(i10n.nothingToClean[userLang]);
@@ -122,7 +131,6 @@ export async function cleanStats() {
     new Notice(i10n.statsCleaned[userLang]);
 
     await this.saveData(this.stats);
-
 }
 
 

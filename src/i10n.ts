@@ -4,7 +4,7 @@ interface i10n {
 
 export const userLang = navigator.language || 'en';
 
-export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n } = {
+export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n, tableSwitch: i10n, cardSwitch: i10n } = {
     iKnow: {
         "en": "I know",
         "ru": "Знаю",
@@ -109,5 +109,19 @@ export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, c
         "es": "Mostrar normal",
         "fr": "Afficher normal",
         "zh": "显示正常"     
+    },
+    tableSwitch: {
+        "en": "Switch to voca-table",
+        "ru": "Переключить в voca-table",
+        "es": "Cambiar a voca-table",
+        "fr": "Changer en voca-table",
+        "zh": "切换到voca-table"
+    },
+    cardSwitch: {
+        "en": "Switch to voca-card",
+        "ru": "Переключить в voca-card",
+        "es": "Cambiar a voca-card",
+        "fr": "Changer en voca-card",
+        "zh": "切换到voca-card"
     }
 }

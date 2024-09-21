@@ -3,7 +3,7 @@ import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
 import { Card } from "./Card";
-import { cleanStats, createEmpty, getNextCard, getSource } from './utils';
+import { cleanStats, createEmpty, getNextCard, getSource, replaceLanguage } from './utils';
 import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from './renderCardUtils';
 import { renderTableBody } from './renderTable';
 import { PageStats } from './global';
@@ -19,44 +19,64 @@ export default class VocabularyView extends Plugin {
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
             await this.renderTable(source, el, ctx)
-            el.addEventListener("contextmenu", this.handleContextMenu.bind(this));
+            el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el, ctx));
         })
         this.registerMarkdownCodeBlockProcessor("voca-card", async (source, el, ctx) => {
-            await this.parseCodeBlock(el, ctx)
+            await this.parseCodeBlock(el, ctx, source)
         })
     }
 
-    handleContextMenu(event: MouseEvent, el: HTMLElement, cardStat: CardStat , cardList: CardList  , ctx : MarkdownPostProcessorContext  , contentAfter : string) {
+    handleContextMenu(event: MouseEvent, el: HTMLElement, ctx: MarkdownPostProcessorContext, source = "", cardStat?: CardStat, cardList?: CardList, contentAfter?: string) {
         event.preventDefault();
+        const isVocaCard = el.classList.contains("block-language-voca-card");
         const menu = new Menu();
-        menu.addItem((item) =>
-            item
-                // clean up old stats
-                .setTitle(i10n.clean[userLang])
-                .setIcon("trash")
-                .onClick(async () => await cleanStats.bind(this)())
+
+        menu.addItem((item) => item
+            // clean up old stats
+            .setTitle(i10n.clean[userLang])
+            .setIcon("trash")
+            .onClick(async () => await cleanStats.bind(this)())
         );
+
         menu.addItem(async (item) => item
-            .setTitle(`${this.mode === "random" ? i10n.next[userLang] : i10n.random[userLang]}`)
+            // change language
+            .setTitle(`${isVocaCard ? i10n.tableSwitch[userLang] : i10n.cardSwitch[userLang]}`)
             .setIcon("arrow-right")
             .onClick(async () => {
-                this.mode = this.mode === "random" ? "next" : "random";
-                await this.saveData({});
-                (el.querySelector(".mode-div") as HTMLSpanElement).textContent = this.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+                await replaceLanguage(this, ctx, el);
+                el.detach
+                if (!isVocaCard) {
+                    await this.parseCodeBlock(el, ctx, source)
+                } else {
+                    await this.renderTable(source, el, ctx)
+                    el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el, ctx));
+                }
             })
         )
 
-        menu.addItem(async (item) => item
-            // invert showing
-            .setTitle(`${this.invert ? i10n.normal[userLang] :  i10n.invert[userLang]}`)
-            .setIcon("arrow-right")
-            .onClick(async () => {
-                this.invert = !this.invert;
-                await this.saveData({});
-                (el.querySelector(".invert-div") as HTMLSpanElement).textContent = this.invert ? i10n.invert[userLang] : i10n.normal[userLang];
-                await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter)
-            })
-        )
+        if (cardStat && cardList && contentAfter) {
+            menu.addItem(async (item) => item
+                .setTitle(`${this.mode === "random" ? i10n.next[userLang] : i10n.random[userLang]}`)
+                .setIcon("arrow-right")
+                .onClick(async () => {
+                    this.mode = this.mode === "random" ? "next" : "random";
+                    await this.saveData({});
+                    (el.querySelector(".mode-div") as HTMLSpanElement).textContent = this.mode === "random" ? i10n.random[userLang] : i10n.next[userLang];
+                })
+            )
+
+            menu.addItem(async (item) => item
+                // invert showing
+                .setTitle(`${this.invert ? i10n.normal[userLang] : i10n.invert[userLang]}`)
+                .setIcon("arrow-right")
+                .onClick(async () => {
+                    this.invert = !this.invert;
+                    await this.saveData({});
+                    (el.querySelector(".invert-div") as HTMLSpanElement).textContent = this.invert ? i10n.invert[userLang] : i10n.normal[userLang];
+                    await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter)
+                })
+            )
+        }
         menu.showAtMouseEvent(event);
     }
 
@@ -68,7 +88,7 @@ export default class VocabularyView extends Plugin {
         await this.saveData(this.stats);
     }
 
-    async parseCodeBlock(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+    async parseCodeBlock(el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
         await this.loadStats();
 
         if (!ctx) {
@@ -80,7 +100,7 @@ export default class VocabularyView extends Plugin {
         const cardList = new CardList(this, contentAfter);
         const cardStat = new CardStat(this, this.app, el, ctx, cardList);
         await this.renderCard(this, cardStat, cardList, el, ctx, contentAfter);
-        el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el,cardStat, cardList, ctx, contentAfter));
+        el.addEventListener("contextmenu", (event) => this.handleContextMenu(event, el, ctx, source, cardStat, cardList, contentAfter));
     }
 
     async renderCard(plugin: VocabularyView, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
@@ -116,7 +136,7 @@ export default class VocabularyView extends Plugin {
 
         el.innerHTML = '';
         renderCardStats(el, cardStat, card, cardList);
-        renderCardContent(this,el, card);
+        renderCardContent(this, el, card);
         renderCardButtons(this, el, card, cardStat, cardList, el, ctx, source);
     }
 
