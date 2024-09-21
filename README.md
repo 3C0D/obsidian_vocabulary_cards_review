@@ -31,8 +31,8 @@ The play `▶/⏹` button starts/stops the automatic mode. Cards are then displa
 - Clean data of deleted codeblocks.
 - Choose mode: `random` or `next`.
 - Show inverted: invert the expression and its explanation (blured at first). Really usefull to learn in both directions.
-- Switch between codeblock languages: `voca-card` or `voca-table`. To avoid to have to edit the block manually.
-<video controls src="Voca_cards_review.mp4" title="Demo"></video>
+- Switch between codeblock languages: `voca-card` or `voca-table`. To avoid to have to edit the block manually.  
+<video controls src="Voca_cards_review.mp4" title="Demo"></video>  
 [Idea to use it better to learn a language with perplexity AI](<assets/Idea to use it better to learn a language.md>)
 
 ## Development (Add this to your README)
