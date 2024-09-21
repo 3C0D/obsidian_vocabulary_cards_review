@@ -1,7 +1,7 @@
 {
-	"name": "vocabulary_cards_try",
+	"name": "vocabulary_cards_review",
 	"version": "4.0.0",
-	"description": "vocab cards try",
+	"description": "vocabulary cards review",
 	"main": "main.js",
 	"scripts": {
 		"dev": "SET REAL=0 && tsx scripts/esbuild.config.mts",
