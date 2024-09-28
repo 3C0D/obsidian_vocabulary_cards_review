@@ -16,5 +16,6 @@ export interface SectionInfo {
 export interface Settings {
     stats: Record<string, PageStats>;
     showTime: number;
-    explainTime: number
+    explainTime: number;
+    disableConfirmationButtons: boolean;
 }

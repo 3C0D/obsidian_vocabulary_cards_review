@@ -5,7 +5,7 @@ interface i10n {
 // export const userLang = navigator.language || 'en';
 export const userLang = 'en';
 
-export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n, tableSwitch: i10n, cardSwitch: i10n, derivateTime: i10n, explanationTime: i10n } = {
+export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, cards: i10n, reload: i10n, empty: i10n, noContext: i10n, nothingToClean: i10n, statsCleaned: i10n, random: i10n, next: i10n, clean: i10n, invert: i10n, normal: i10n, tableSwitch: i10n, cardSwitch: i10n, derivateTime: i10n, explanationTime: i10n, disableConfirmationButtons: i10n } = {
     iKnow: {
         "en": "I know",
         "ru": "Знаю",
@@ -102,14 +102,14 @@ export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, c
         "ru": "Показывать инвертированные",
         "es": "Mostrar invertido",
         "fr": "Afficher inversé",
-        "zh": "显示反转"      
+        "zh": "显示反转"
     },
     normal: {
         "en": "Show normal",
         "ru": "Показывать обычные",
         "es": "Mostrar normal",
         "fr": "Afficher normal",
-        "zh": "显示正常"     
+        "zh": "显示正常"
     },
     tableSwitch: {
         "en": "Switch to voca-table",
@@ -138,5 +138,11 @@ export const i10n: { iKnow: i10n, repeat: i10n, total: i10n, parseError: i10n, c
         "es": "Tiempo para mostrar la explicación (en segundos)",
         "fr": "Temps pour montrer l'explication (en secondes)",
         "zh": "显示解释的时间(秒)"
+    },
+    disableConfirmationButtons: {
+        "en": "Disable if you want confirmation buttons still enabled, in automatic mode",
+        "ru": "Отключить, если вы хотите, чтобы кнопки подтверждения остались включёнными в режиме автоматической",
+        "es": "Deshabilitar si quieres que los botones de confirmación permanezcan activos en el modo automático",
+        "fr": "Désactiver si vous souhaitez que les boutons de confirmation restent actifs, dans le mode automatique"
     }
 }

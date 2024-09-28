@@ -4,8 +4,7 @@ import { CardStat } from "./CardStat";
 import { i10n, userLang } from "./i10n";
 import VocabularyView from "./main";
 import { CardList } from "./CardList";
-import { reloadButton, renderCardButtons, renderCardContent, renderCardStats } from "./renderCardUtils";
-import { disableButtons, toggleAutoMode } from "./automaticMode";
+import { renderCard, renderCardButtons, renderCardContent, renderCardStats } from "./render";
 
 /**
  * returns the content of the markdown page untill next code block if exists
@@ -107,13 +106,18 @@ export async function cleanStats() {
     const usedIds = new Set();
 
     for (const file of markdownFiles) {
-        const fileContent = await this.app.vault.cachedRead(file);
-        const matches = fileContent.matchAll(codeBlockRegex);
-        for (const match of matches) {
-            const id = match[2].trim();
-            if (id) {
-                usedIds.add(id);
+        try {
+            const fileContent = await this.app.vault.cachedRead(file);
+            const matches = fileContent.matchAll(codeBlockRegex);
+            for (const match of matches) {
+                const id = match[2].trim();
+                if (id) {
+                    usedIds.add(id);
+                }
             }
+        } catch (error) {
+            console.error("Error reading file:", error);
+            new Notice("Unable to read file.");
         }
     }
 
@@ -189,39 +193,6 @@ export function handleContextMenu(event: MouseEvent, plugin: VocabularyView, el:
     menu.showAtMouseEvent(event);
 }
 
-export async function renderCard(plugin: VocabularyView, cardStat: CardStat, cardList: CardList, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
-    el.innerHTML = '';
-    const container = el.createDiv("voca-card-container");
-    const cardEl = container.createDiv("voca-card");
-
-    if (!cardList.length) {
-        createEmpty(cardEl);
-    } else {
-        await renderSingleCard(plugin, cardList, cardStat, cardEl, ctx, source);
-    }
-
-    reloadButton(plugin, container, cardList, ctx, 'card', cardStat);
-    mode(plugin, container);
-    invert(plugin, container);
-
-    if (!cardList.length) {
-        el.querySelector('.mode-div')?.classList.add('hidden');
-        el.querySelector('.invert-div')?.classList.add('hidden');
-    }
-
-    const buttonContainer = el.querySelector('.reload-container') as HTMLElement;
-    const playButton = buttonContainer.createEl('button', {
-        cls: 'reload-container_play-button',
-        text: plugin.autoMode ? '⏹' : '▶',
-        attr: { title: plugin.autoMode ? 'Stop' : 'Start Auto Mode' }
-    });
-    playButton.addEventListener('click', async () => await toggleAutoMode(plugin, cardList, cardStat, container, ctx, source));
-
-    if (plugin.autoMode) {
-        disableButtons(cardEl);
-    }
-}
-
 export function selectCard(plugin: VocabularyView, cardList: CardList, cardStat: CardStat): Card | undefined {
     const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
     return remainingCards.length ? getNextCard(plugin, remainingCards, cardStat, cardList) : undefined;
@@ -237,18 +208,10 @@ export async function renderSingleCard(plugin: VocabularyView, cardList: CardLis
 
     await cardStat.cleanupSavedStats();
 
-    el.innerHTML = '';
+    while (el.firstChild) {
+        el.removeChild(el.firstChild);
+    }
     renderCardStats(el, cardStat, card, cardList);
     renderCardContent(plugin, el, card);
     renderCardButtons(plugin, el, card, cardStat, cardList, el, ctx, source);
-}
-
-export function mode(plugin: VocabularyView, el: HTMLElement) {
-    const container = el.querySelector('.reload-container') as HTMLElement;
-    container.createEl('div', { cls: 'mode-div', text: plugin.mode === "random" ? i10n.random[userLang] : i10n.next[userLang] });
-}
-
-export function invert(plugin: VocabularyView, el: HTMLElement) {
-    const container = el.querySelector('.reload-container') as HTMLElement;
-    container.createEl('div', { cls: 'invert-div', text: plugin.invert ? i10n.invert[userLang] : i10n.normal[userLang] });
 }

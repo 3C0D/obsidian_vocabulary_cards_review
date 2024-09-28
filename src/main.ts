@@ -2,12 +2,12 @@ import { MarkdownPostProcessorContext, Notice, Plugin } from 'obsidian';
 import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
-import { getSource, handleContextMenu, renderCard } from './utils';
-import { renderTableBody } from './renderTable';
 import { Settings } from './global';
 import { i10n, userLang } from './i10n';
 import { VocabularySettingTab } from './settingTab';
 import { DEFAULT_SETTINGS } from './variables';
+import { renderCard, renderTableBody } from './render';
+import { getSource, handleContextMenu } from './utils';
 
 
 export default class VocabularyView extends Plugin {

@@ -10,12 +10,14 @@ export async function toggleAutoMode(plugin: VocabularyView, cardList: CardList,
     plugin.autoMode = !plugin.autoMode;
     const playButton = el.querySelector('.reload-container_play-button') as HTMLButtonElement;
     playButton.textContent = plugin.autoMode ? '⏹' : '▶';
+    const confirmationButtons = plugin.settings.disableConfirmationButtons
 
     if (plugin.autoMode) {
-        disableButtons(el);
+        console.log("stop")
+        if (confirmationButtons) disableButtons(el);
         await runAutoMode(plugin, cardList, cardStat, el, ctx, source);
     } else {
-        enableButtons(el);
+        if (confirmationButtons) enableButtons(el);
         if (autoModeTimer) {
             clearTimeout(autoModeTimer);
             autoModeTimer = null;
@@ -47,7 +49,8 @@ async function runAutoMode(plugin: VocabularyView, cardList: CardList, cardStat:
 
         const voca_card = el.querySelector('.voca-card') as HTMLElement;
         await renderSingleCard(plugin, cardList, cardStat, voca_card, ctx, source);
-        disableButtons(el);
+        const confirmationButtons = plugin.settings.disableConfirmationButtons
+        if (confirmationButtons) disableButtons(el);
 
         autoModeTimer = setTimeout(async () => {
             const blurredEl = el.querySelector('.voca-card_explanation-blurred') as HTMLElement;

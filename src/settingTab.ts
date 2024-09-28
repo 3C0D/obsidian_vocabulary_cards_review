@@ -38,5 +38,15 @@ export class VocabularySettingTab extends PluginSettingTab {
                     this.plugin.settings.explainTime = value;
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+        .setName('Disable confirmation buttons in automatic mode')
+        .setDesc(`${i10n.disableConfirmationButtons[userLang]}`)
+        .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.disableConfirmationButtons)
+            .onChange(async (value) => {
+                this.plugin.settings.disableConfirmationButtons = value;
+                await this.plugin.saveSettings();
+            }));
     }
 }
