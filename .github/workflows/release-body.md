@@ -1,1 +1,1 @@
-petites améliorations
+possibility to be in automatic mode and keep confirmation buttons active
