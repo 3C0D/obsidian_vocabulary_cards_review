@@ -4,7 +4,7 @@ import { CardList } from './CardList';
 import { CardStat } from './CardStat';
 import { createEmpty, getSource, renderSingleCard } from './utils';
 import VocabularyView from './main';
-import { toggleAutoMode, disableButtons } from './automaticMode';
+import { toggleAutoMode, disableButtons, runAutoMode } from './automaticMode';
 import { i10n, userLang } from "./i10n";
 
 
@@ -168,6 +168,14 @@ function oneCard(cardList: CardList) {
 async function confirm(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, card: Card, el: HTMLElement, ctx: MarkdownPostProcessorContext, right: boolean, src: string) {
     if (oneCard(cardList)) return;
     right ? cardStat.rightAnswer(card) : await cardStat.wrongAnswer(card);
+    if (plugin.autoMode && !plugin.settings.disableConfirmationButtons) {
+        if (plugin.autoModeTimer) {
+            clearTimeout(plugin.autoModeTimer);
+            plugin.autoModeTimer = null;
+            await runAutoMode(plugin, cardList, cardStat, el.parentElement as HTMLElement, ctx, src);
+            return
+        }
+    }
     await renderSingleCard(plugin, cardList, cardStat, el, ctx, src);
 }
 

@@ -4,23 +4,20 @@ import { CardStat } from "./CardStat";
 import VocabularyView from "./main";
 import { renderSingleCard } from "./utils";
 
-let autoModeTimer: NodeJS.Timeout | null = null;
-
 export async function toggleAutoMode(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
     plugin.autoMode = !plugin.autoMode;
     const playButton = el.querySelector('.reload-container_play-button') as HTMLButtonElement;
     playButton.textContent = plugin.autoMode ? '⏹' : '▶';
-    const confirmationButtons = plugin.settings.disableConfirmationButtons
+    const disableConfirmationButtons = plugin.settings.disableConfirmationButtons
 
     if (plugin.autoMode) {
-        console.log("stop")
-        if (confirmationButtons) disableButtons(el);
+        if (disableConfirmationButtons) disableButtons(el);
         await runAutoMode(plugin, cardList, cardStat, el, ctx, source);
     } else {
-        if (confirmationButtons) enableButtons(el);
-        if (autoModeTimer) {
-            clearTimeout(autoModeTimer);
-            autoModeTimer = null;
+        if (disableConfirmationButtons) enableButtons(el);
+        if (plugin.autoModeTimer) {
+            clearTimeout(plugin.autoModeTimer);
+            plugin.autoModeTimer = null;
         }
     }
 }
@@ -43,20 +40,20 @@ function enableButtons(el: HTMLElement) {
     });
 }
 
-async function runAutoMode(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+export async function runAutoMode(plugin: VocabularyView, cardList: CardList, cardStat: CardStat, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
     async function runCycle() {
         if (!plugin.autoMode) return;
 
         const voca_card = el.querySelector('.voca-card') as HTMLElement;
         await renderSingleCard(plugin, cardList, cardStat, voca_card, ctx, source);
-        const confirmationButtons = plugin.settings.disableConfirmationButtons
-        if (confirmationButtons) disableButtons(el);
+        const disableConfirmationButtons = plugin.settings.disableConfirmationButtons
+        if (disableConfirmationButtons) disableButtons(el);
 
-        autoModeTimer = setTimeout(async () => {
+        plugin.autoModeTimer = setTimeout(async () => {
             const blurredEl = el.querySelector('.voca-card_explanation-blurred') as HTMLElement;
             if (blurredEl) {
                 blurredEl.click();
-                autoModeTimer = setTimeout(() => runCycle(), plugin.settings.explainTime * 1000);
+                plugin.autoModeTimer = setTimeout(() => runCycle(), plugin.settings.explainTime * 1000);
             } else {
                 runCycle();
             }

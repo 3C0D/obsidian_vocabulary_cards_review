@@ -16,6 +16,7 @@ export default class VocabularyView extends Plugin {
     mode: "random" | "next" = 'random'
     invert = false
     autoMode = false
+    autoModeTimer: NodeJS.Timeout | null = null
 
     async onload() {
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
