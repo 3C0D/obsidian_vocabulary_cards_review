@@ -1,1 +1,1 @@
-plugin name update
+petites améliorations
