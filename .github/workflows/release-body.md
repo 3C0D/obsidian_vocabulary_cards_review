@@ -1,1 +1,1 @@
-bug loading settings fixed
+condition added to timer in automatic mode
