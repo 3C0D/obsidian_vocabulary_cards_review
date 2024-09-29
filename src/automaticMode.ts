@@ -50,6 +50,7 @@ export async function runAutoMode(plugin: VocabularyView, cardList: CardList, ca
         if (disableConfirmationButtons) disableButtons(el);
 
         plugin.autoModeTimer = setTimeout(async () => {
+            if (!plugin.autoMode) return;
             const blurredEl = el.querySelector('.voca-card_explanation-blurred') as HTMLElement;
             if (blurredEl) {
                 blurredEl.click();

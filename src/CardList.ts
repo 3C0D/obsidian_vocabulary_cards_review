@@ -1,3 +1,4 @@
+import { Notice } from "obsidian";
 import { Card } from "./Card";
 import type VocabularyView from './main';
 
@@ -68,12 +69,14 @@ export class CardList {
 
         const { transcription, explanation } = this.parseTranscriptionAndExplanation(rest);
 
-        if (explanation) {
+        if (explanation !== ''){
             try {
                 // delete "**" around
                 return new Card(trimmedWord, transcription, explanation.replace(/^\*+|\*+$/g, ''));
             } catch (error) {
-                console.warn(`Skipping invalid card: ${trimmedWord}. Error: ${error.message}`);
+                console.warn(`Error parsing card: ${trimmedWord} : ${line}\n${error.message}`);
+                new Notice(`Error parsing card: ${trimmedWord} : ${line}\n${error.message}`);
+                return null;
             }
         }
         return null;

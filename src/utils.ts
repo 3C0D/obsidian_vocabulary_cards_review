@@ -134,7 +134,7 @@ export async function cleanStats() {
 
     new Notice(i10n.statsCleaned[userLang]);
 
-    await this.saveSettings;
+    await this.saveSettings();
 }
 
 export function handleContextMenu(event: MouseEvent, plugin: VocabularyView, el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string, cardStat?: CardStat, cardList?: CardList, contentAfter?: string) {
@@ -193,7 +193,7 @@ export function handleContextMenu(event: MouseEvent, plugin: VocabularyView, el:
     menu.showAtMouseEvent(event);
 }
 
-export function selectCard(plugin: VocabularyView, cardList: CardList, cardStat: CardStat): Card | undefined {
+export function remainingCards(plugin: VocabularyView, cardList: CardList, cardStat: CardStat): Card | undefined {
     const remainingCards = cardList.cards.filter(c => c !== cardList.currentCard);
     return remainingCards.length ? getNextCard(plugin, remainingCards, cardStat, cardList) : undefined;
 }
@@ -202,7 +202,7 @@ export async function renderSingleCard(plugin: VocabularyView, cardList: CardLis
     if (cardList.cards.length) {
         await cardStat.resolveId();
     }
-    const card = selectCard(plugin, cardList, cardStat);
+    const card = remainingCards(plugin, cardList, cardStat);
     if (!card) return;
     cardList.currentCard = card;
 
