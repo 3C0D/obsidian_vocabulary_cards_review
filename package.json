@@ -1,6 +1,6 @@
 {
 	"name": "vocabulary_cards_review",
-	"version": "4.2.0",
+	"version": "4.2.1",
 	"description": "vocabulary cards review",
 	"main": "main.js",
 	"scripts": {
