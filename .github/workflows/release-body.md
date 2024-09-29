@@ -1,1 +1,1 @@
-possibility to be in automatic mode and keep confirmation buttons active
+bug loading settings fixed
