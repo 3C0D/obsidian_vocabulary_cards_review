@@ -2,12 +2,12 @@ import { MarkdownPostProcessorContext, Notice, Plugin } from 'obsidian';
 import "./styles.scss";
 import { CardStat } from "./CardStat";
 import { CardList } from "./CardList";
-import { Settings } from './global';
+import { VocabularySettingTab } from "./settingTab";
 import { i10n, userLang } from './i10n';
-import { VocabularySettingTab } from './settingTab';
 import { DEFAULT_SETTINGS } from './variables';
 import { renderCard, renderTableBody } from './render';
 import { getSource, handleContextMenu } from './utils';
+import { Settings } from './global';
 
 
 export default class VocabularyView extends Plugin {
@@ -19,6 +19,7 @@ export default class VocabularyView extends Plugin {
     autoModeTimer: NodeJS.Timeout | null = null
 
     async onload() {
+        await this.loadSettings();
         this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
             await this.renderTable(source, el, ctx)
         })
