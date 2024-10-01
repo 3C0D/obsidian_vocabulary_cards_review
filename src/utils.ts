@@ -157,7 +157,7 @@ export function handleContextMenu(event: MouseEvent, plugin: VocabularyView, el:
             await replaceLanguage(plugin, ctx, el);
             el.detach();
             if (!isVocaCard) {
-                await plugin.parseCodeBlock(el, ctx, source);
+                await plugin.parseCodeBlock(source,el, ctx);
             } else {
                 await plugin.renderTable(source, el, ctx);
                 el.addEventListener("contextmenu", (event) => handleContextMenu(event, plugin, el, ctx, source));

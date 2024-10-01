@@ -20,12 +20,8 @@ export default class VocabularyView extends Plugin {
 
     async onload() {
         await this.loadSettings();
-        this.registerMarkdownCodeBlockProcessor("voca-table", async (source, el, ctx) => {
-            await this.renderTable(source, el, ctx)
-        })
-        this.registerMarkdownCodeBlockProcessor("voca-card", async (source, el, ctx) => {
-            await this.parseCodeBlock(el, ctx, source)
-        })
+        this.registerMarkdownCodeBlockProcessor("voca-table", await this.renderTable.bind(this))
+        this.registerMarkdownCodeBlockProcessor("voca-card", await this.parseCodeBlock.bind(this))
         this.addSettingTab(new VocabularySettingTab(this.app, this));
     }
 
@@ -37,7 +33,7 @@ export default class VocabularyView extends Plugin {
         await this.saveData(this.settings);
     }
 
-    async parseCodeBlock(el: HTMLElement, ctx: MarkdownPostProcessorContext, source: string) {
+    async parseCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         await this.loadSettings();
 
         if (!ctx) {
