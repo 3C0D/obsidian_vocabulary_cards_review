@@ -1,1 +1,1 @@
-condition added to timer in automatic mode
+quick code modif
