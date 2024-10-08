@@ -1,9 +1,9 @@
 import { App, MarkdownPostProcessorContext } from "obsidian";
 import { Card } from "./Card";
 import VocabularyView from "./main";
-import { PageStats, SectionInfo } from "./global";
 import { CardList } from "./CardList";
 import { createIdfromDate } from "./utils";
+import { SectionInfo, PageStats } from "./global";
 
 export class CardStat {
     private id = "";
@@ -28,18 +28,18 @@ export class CardStat {
         const match = /^`{3,}\S+\s+(.*)$/.exec(codeBlockHeader);
 
         if (!match) {
-            this.id = await this.createAndSaveNewId(lines, sectionInfo);
+            this.id = await this.createAndSaveNewId(this.app, lines, sectionInfo);
         } else {
             this.id = match[1].trim();
         }
     }
 
-    private async createAndSaveNewId(lines: string[], sectionInfo: SectionInfo): Promise<string> {
+    private async createAndSaveNewId(app: App, lines: string[], sectionInfo: SectionInfo): Promise<string> {
         const id = createIdfromDate();
-        const file = this.app.vault.getFileByPath(this.ctx.sourcePath);
+        const file = app.vault.getFileByPath(this.ctx.sourcePath);
         if (!file) return "";
 
-        await this.app.vault.process(file, (content) => {
+        await app.vault.process(file, (content) => {
             const newLines = lines.slice();//copy
             newLines[sectionInfo.lineStart] = newLines[sectionInfo.lineStart].trim() + ` id:${id}`;
             const newText = newLines.join('\n');
